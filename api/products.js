@@ -4,8 +4,16 @@ import { requireAdmin } from './_lib.js';
 
 // Vercel's filesystem is read-only, so the price list lives in Vercel Blob.
 // Without a Blob token the site still works - it just serves the price list
-// that was committed to the repo and refuses to save.
-const KEY = 'products.json';
+// committed to the repo and refuses to save.
+//
+// Every save writes a NEW pathname rather than overwriting one. Public blob
+// URLs sit behind a CDN with a 60 second floor on cache lifetime, so
+// overwriting a fixed name meant a price saved at 10:00 could still read back
+// as the old one at 10:00:30. A fresh name is a fresh URL, so a saved price is
+// visible immediately. The last few versions are kept as a cheap undo.
+const PREFIX = 'prijslijst/products-';
+const KEEP = 5;
+
 const hasBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 /** JSON.parse rejects a UTF-8 BOM, and Windows editors love adding one. */
@@ -18,29 +26,26 @@ async function readSeed() {
   return parseJson(await readFile(file, 'utf8'));
 }
 
-async function blobUrl() {
+/** Newest first. */
+async function versions() {
   const { list } = await import('@vercel/blob');
-  const { blobs } = await list({ prefix: KEY, limit: 1 });
-  const hit = blobs.find(b => b.pathname === KEY);
-  return hit ? hit.url : null;
+  const { blobs } = await list({ prefix: PREFIX });
+  return blobs.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
 }
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
+      res.setHeader('Cache-Control', 'no-store');
+
       if (hasBlob()) {
-        const url = await blobUrl();
-        if (url) {
-          // Stable blob URLs sit behind a CDN, so bust it - a price the owner
-          // just saved has to be the price the counter sees.
-          const r = await fetch(`${url}?ts=${Date.now()}`, { cache: 'no-store' });
-          if (r.ok) {
-            res.setHeader('Cache-Control', 'no-store');
-            return res.status(200).json(parseJson(await r.text()));
-          }
+        const [newest] = await versions();
+        if (newest) {
+          const r = await fetch(newest.url, { cache: 'no-store' });
+          if (r.ok) return res.status(200).json(parseJson(await r.text()));
         }
       }
-      res.setHeader('Cache-Control', 'no-store');
+      // Nothing saved yet: serve the list that shipped with the repo.
       return res.status(200).json(await readSeed());
     }
 
@@ -60,15 +65,25 @@ export default async function handler(req, res) {
       if (!body || !Array.isArray(body.products) || !Array.isArray(body.categories)) {
         return res.status(400).json({ error: 'Ongeldige prijslijst - niet opgeslagen.' });
       }
+      if (body.products.length === 0) {
+        return res.status(400).json({ error: 'Lege prijslijst - niet opgeslagen.' });
+      }
 
-      const { put } = await import('@vercel/blob');
-      await put(KEY, JSON.stringify(body, null, 2), {
+      const { put, del } = await import('@vercel/blob');
+      await put(`${PREFIX}${Date.now()}.json`, JSON.stringify(body, null, 2), {
         access: 'public',
         addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: 'application/json',
-        cacheControlMaxAge: 0
+        contentType: 'application/json'
       });
+
+      // Prune, but never let tidying up break a successful save.
+      try {
+        const old = (await versions()).slice(KEEP);
+        if (old.length) await del(old.map(b => b.url));
+      } catch (err) {
+        console.warn('opruimen oude versies mislukt:', err.message);
+      }
+
       return res.status(200).json({ ok: true });
     }
 
