@@ -60,7 +60,7 @@ export function toast(message, kind = 'info', actionLabel, onAction) {
 }
 
 /** Native <dialog>, so Esc and focus trapping come free. */
-export function confirmDialog(title, text, okLabel = 'Verwijderen') {
+export function confirmDialog(title, text, okLabel) {
   const dlg = $('#confirm');
   $('#confirm-title').textContent = title;
   $('#confirm-text').textContent = text;

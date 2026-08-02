@@ -31,19 +31,24 @@ export function snapWeight(kg) {
 
 /**
  * Check a typed quantity against the scale's real limits.
- * @returns {{ok: boolean, level: 'ok'|'warn'|'error', message: string}}
+ *
+ * Returns a message KEY, not a sentence: this module stays free of language
+ * and of the DOM, so app/test.html can import it on its own.
+ *
+ * @returns {{ok: boolean, level: 'ok'|'warn'|'error', key: string, vars: object}}
  */
 export function checkWeight(kg) {
   const n = Number(kg);
   if (!isFinite(n) || n <= 0) {
-    return { ok: false, level: 'error', message: 'Vul een gewicht in.' };
+    return { ok: false, level: 'error', key: 'scale.enterWeight', vars: {} };
   }
   const grams = roundHalfUp(n * 1000);
   if (grams > MAX_G) {
     return {
       ok: false,
       level: 'error',
-      message: `De weegschaal gaat tot ${SCALE_MAX_KG.toFixed(0)} kg. Weeg in twee keer.`
+      key: 'scale.tooHeavy',
+      vars: { max: SCALE_MAX_KG.toFixed(0) }
     };
   }
   if (grams < MIN_G) {
@@ -52,10 +57,11 @@ export function checkWeight(kg) {
     return {
       ok: true,
       level: 'warn',
-      message: `Onder ${(SCALE_MIN_KG * 1000).toFixed(0)} g weegt de schaal niet nauwkeurig.`
+      key: 'scale.tooLight',
+      vars: { min: (SCALE_MIN_KG * 1000).toFixed(0) }
     };
   }
-  return { ok: true, level: 'ok', message: '' };
+  return { ok: true, level: 'ok', key: '', vars: {} };
 }
 
 /** Count items sold per piece or per bunch, so no decimals there. */
@@ -108,4 +114,4 @@ export function parseNumber(text) {
   return isFinite(n) ? n : NaN;
 }
 
-export const UNIT_LABEL = { kg: 'kg', stuk: 'stuk', bos: 'bos' };
+// Unit labels live in i18n.js - they are words, and words have a language.

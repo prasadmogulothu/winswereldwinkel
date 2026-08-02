@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Groenten — Wereld Supermarkt</title>
+<title>Vegetables — Wereld Supermarkt</title>
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/app.css">
 </head>
@@ -37,28 +37,36 @@
 <div class="app">
 
   <header class="topbar">
-    <div class="brand">WERELD <span class="brand-dim">· Groenten</span></div>
-    <nav class="tabs" role="tablist" aria-label="Hoofdmenu">
+    <div class="brand">WERELD <span class="brand-dim">· <span data-i18n="brand.sub">Vegetables</span></span></div>
+
+    <nav class="tabs" role="tablist" data-i18n-aria="nav.main">
       <button class="tab" role="tab" id="tab-sell"  aria-selected="true"  aria-controls="view-sell">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-weight"/></svg>
-        Verkoop
+        <span data-i18n="tab.sell">Sell</span>
       </button>
       <button class="tab" role="tab" id="tab-admin" aria-selected="false" aria-controls="view-admin">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sliders"/></svg>
-        Beheer
+        <span data-i18n="tab.admin">Admin</span>
       </button>
       <button class="tab" role="tab" id="tab-list"  aria-selected="false" aria-controls="view-list">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-list"/></svg>
-        Prijslijst
+        <span data-i18n="tab.list">Price list</span>
       </button>
     </nav>
+
+    <!-- Two words, always both visible: staff should never have to open a menu
+         to find out which language they are about to switch to. -->
+    <div class="lang" role="group" data-i18n-aria="lang.switch">
+      <button class="lang-btn" id="lang-en" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-btn" id="lang-nl" data-lang="nl" aria-pressed="false">NL</button>
+    </div>
   </header>
 
   <!-- ============================ VERKOOP ============================ -->
   <section class="view is-active" id="view-sell" role="tabpanel" aria-labelledby="tab-sell">
 
     <aside class="basket">
-      <div class="basket-head">Deze klant</div>
+      <div class="basket-head" data-i18n="basket.head">This customer</div>
       <div class="basket-lines" id="basket-lines"></div>
 
       <div class="readout-wrap">
@@ -67,14 +75,14 @@
             <span class="readout-euro">&euro;</span>
             <span class="readout-value" id="readout-value">0,00</span>
           </div>
-          <div class="readout-hint">Typ dit in Hanka &rarr; groenten</div>
+          <div class="readout-hint" data-i18n="readout.hint">Type this into Hanka &rarr; groenten</div>
         </div>
         <div class="basket-actions">
           <button class="btn btn-primary" id="btn-done" disabled>
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>
-            Klaar
+            <span data-i18n="btn.done">Done</span>
           </button>
-          <button class="btn btn-ghost btn-danger" id="btn-clear" disabled aria-label="Mandje wissen">
+          <button class="btn btn-ghost btn-danger" id="btn-clear" disabled data-i18n-aria="basket.clear">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-trash"/></svg>
           </button>
         </div>
@@ -106,7 +114,7 @@
               <div class="weigh-note" id="weigh-note"></div>
 
               <div class="weigh-total">
-                <span class="weigh-total-label">Bedrag</span>
+                <span class="weigh-total-label" data-i18n="sell.amount">Amount</span>
                 <span class="weigh-total-value" id="weigh-total">&euro; 0,00</span>
               </div>
             </div>
@@ -124,18 +132,18 @@
             <button class="key" data-k="3">3</button>
             <button class="key" data-k="." id="key-dot">,</button>
             <button class="key" data-k="0">0</button>
-            <button class="key key-util" data-k="del" aria-label="Wissen">
+            <button class="key key-util" data-k="del" data-i18n-aria="key.del">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-backspace"/></svg>
             </button>
 
             <div class="weigh-actions">
               <button class="btn btn-ghost" id="btn-weigh-back">
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-back"/></svg>
-                Terug
+                <span data-i18n="btn.back">Back</span>
               </button>
               <button class="btn btn-primary" id="btn-add" disabled>
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-plus"/></svg>
-                Toevoegen
+                <span data-i18n="btn.add">Add</span>
               </button>
             </div>
           </div>
@@ -143,15 +151,15 @@
       </div>
     </div>
 
-    <nav class="rail" id="rail" aria-label="Categorie"></nav>
+    <nav class="rail" id="rail" data-i18n-aria="nav.category"></nav>
   </section>
 
   <!-- ============================ BEHEER ============================= -->
   <section class="view" id="view-admin" role="tabpanel" aria-labelledby="tab-admin">
     <aside class="side">
-      <div class="side-label">Beheer</div>
-      <button class="rail-btn" id="nav-week" aria-pressed="true">Weekprijzen</button>
-      <button class="rail-btn" id="nav-products" aria-pressed="false">Alle groenten</button>
+      <div class="side-label" data-i18n="tab.admin">Admin</div>
+      <button class="rail-btn" id="nav-week" aria-pressed="true" data-i18n="admin.week">Weekly prices</button>
+      <button class="rail-btn" id="nav-products" aria-pressed="false" data-i18n="admin.products">All vegetables</button>
     </aside>
 
     <div class="panel">
@@ -166,17 +174,17 @@
     <div class="panel">
       <div class="panel-head no-print">
         <div>
-          <div class="panel-title">Prijslijst</div>
-          <div class="panel-sub">Voor het schap. Alleen actieve groenten.</div>
+          <div class="panel-title" data-i18n="list.title">Price list</div>
+          <div class="panel-sub" data-i18n="list.sub">For the shelf. Active vegetables only.</div>
         </div>
         <div class="spacer"></div>
         <button class="btn btn-ghost btn-sm" id="btn-kiosk">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-monitor"/></svg>
-          Schermweergave
+          <span data-i18n="list.kiosk">Screen view</span>
         </button>
         <button class="btn btn-primary btn-sm" id="btn-print-sheet">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-printer"/></svg>
-          Print A4
+          <span data-i18n="list.print">Print A4</span>
         </button>
       </div>
       <div class="panel-body" id="list-body"></div>
@@ -194,8 +202,8 @@
   <h2 class="dialog-title" id="confirm-title"></h2>
   <p class="dialog-text" id="confirm-text"></p>
   <div class="dialog-actions">
-    <button class="btn btn-ghost btn-sm" value="cancel" id="confirm-no">Annuleren</button>
-    <button class="btn btn-sm btn-danger btn-ghost" value="ok" id="confirm-yes">Verwijderen</button>
+    <button class="btn btn-ghost btn-sm" value="cancel" id="confirm-no" data-i18n="btn.cancel">Cancel</button>
+    <button class="btn btn-sm btn-danger btn-ghost" value="ok" id="confirm-yes" data-i18n="btn.delete">Delete</button>
   </div>
 </dialog>
 

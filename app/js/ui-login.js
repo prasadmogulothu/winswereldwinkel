@@ -5,52 +5,51 @@
 // devtools, nobody can forge the session cookie.
 
 import * as store from './store.js';
+import { t } from './i18n.js';
 import { $, esc, icon, toast } from './ui.js';
 
-/** Draws the login form into the Beheer panel. Resolves once logged in. */
+/** Draws the login form into the Beheer panel. Calls back once logged in. */
 export function renderLogin(onSuccess) {
   $('#admin-head').innerHTML = `
     <div>
-      <div class="panel-title">Beheer</div>
-      <div class="panel-sub">Log in om prijzen te wijzigen.</div>
+      <div class="panel-title">${esc(t('tab.admin'))}</div>
+      <div class="panel-sub">${esc(t('login.sub'))}</div>
     </div>`;
 
   $('#admin-body').innerHTML = `
     <form class="login" id="login-form" autocomplete="on">
       <div class="login-icon">${icon('sliders', 'icon')}</div>
-      <h2 class="login-title">Inloggen</h2>
-      <p class="login-text">Alleen voor de winkeleigenaar. Het verkoopscherm en de
-        prijslijst blijven gewoon zonder inloggen werken.</p>
+      <h2 class="login-title">${esc(t('login.title'))}</h2>
+      <p class="login-text">${esc(t('login.text'))}</p>
 
       <div class="field">
-        <label for="f-user">Gebruikersnaam</label>
+        <label for="f-user">${esc(t('login.user'))}</label>
         <input class="input" id="f-user" name="username" autocomplete="username" value="admin">
       </div>
       <div class="field">
-        <label for="f-pass">Wachtwoord</label>
+        <label for="f-pass">${esc(t('login.pass'))}</label>
         <input class="input" id="f-pass" name="password" type="password"
-               autocomplete="current-password" placeholder="Wachtwoord">
+               autocomplete="current-password" placeholder="${esc(t('login.pass'))}">
         <div class="err" id="login-err"></div>
       </div>
 
       <button class="btn btn-primary" id="login-go" type="submit">
-        ${icon('check')} Inloggen
+        ${icon('check')} ${esc(t('login.go'))}
       </button>
     </form>`;
 
   $('#admin-foot').innerHTML = '';
 
-  const form = $('#login-form');
   const err = $('#login-err');
   const go = $('#login-go');
 
-  form.onsubmit = async e => {
+  $('#login-form').onsubmit = async e => {
     e.preventDefault();
     err.textContent = '';
     go.disabled = true;
     try {
       await store.login($('#f-user').value.trim(), $('#f-pass').value);
-      toast('Ingelogd', 'ok');
+      toast(t('login.ok'), 'ok');
       onSuccess();
     } catch (ex) {
       err.textContent = ex.message;
@@ -67,8 +66,6 @@ export function renderLogin(onSuccess) {
 export function readOnlyNotice() {
   return `<div class="notice">
     ${icon('warn')}
-    <div><b>Opslaan staat uit.</b> Deze omgeving heeft geen opslag gekoppeld,
-    dus wijzigingen worden niet bewaard. Koppel in Vercel een Blob store
-    (<code>BLOB_READ_WRITE_TOKEN</code>) en deploy opnieuw.</div>
+    <div><b>${esc(t('login.readOnlyTitle'))}</b> ${esc(t('login.readOnlyText'))}</div>
   </div>`;
 }

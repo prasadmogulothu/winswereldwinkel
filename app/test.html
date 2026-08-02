@@ -76,6 +76,10 @@ is(SCALE_STEP_KG, 0.005, 'stap van de DIGI = 5 g');
 is(checkWeight(2.615).level, 'ok', '2,615 kg is gewoon goed');
 is(checkWeight(0.05).level, 'warn', '50 g waarschuwt - onder het minimum van de schaal');
 is(checkWeight(0.05).ok, true, '...maar wordt wel geaccepteerd');
+// Meldingen zijn sleutels, geen zinnen: money.js kent geen taal en geen DOM.
+is(checkWeight(0.05).key, 'scale.tooLight', '50 g geeft de sleutel scale.tooLight');
+is(checkWeight(20).key, 'scale.tooHeavy', '20 kg geeft de sleutel scale.tooHeavy');
+is(checkWeight(2.615).key, '', 'een goed gewicht geeft geen melding');
 is(checkWeight(15.001).ok, false, '15,001 kg wordt geweigerd - schaal gaat tot 15 kg');
 is(checkWeight(15.0).ok, true, '15,000 kg mag nog net');
 is(checkWeight(0).ok, false, '0 kg wordt geweigerd');

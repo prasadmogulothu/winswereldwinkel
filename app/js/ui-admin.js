@@ -3,7 +3,8 @@
 // instead of forty trips through Hanka's PLU editor.
 
 import * as store from './store.js';
-import { formatEuro, parseNumber, UNIT_LABEL } from './money.js';
+import { formatEuro, parseNumber } from './money.js';
+import { t, plural, unit, pName, pSub, cName } from './i18n.js';
 import { $, $$, esc, icon, photoMarkup, toast, confirmDialog, emptyState } from './ui.js';
 import { renderLogin, readOnlyNotice } from './ui-login.js';
 
@@ -19,22 +20,22 @@ export function init(changedCallback) {
   render();
 }
 
-/** The session dropped mid-edit: back to the login form, keep the work visible. */
+/** The session dropped mid-edit: back to the login form. */
 function handleAuthLoss() {
-  toast('Sessie verlopen. Log opnieuw in.', 'err');
+  toast(t('admin.sessionLost'), 'err');
   render();
 }
 
 function go(next) {
   if (screen === 'week' && next !== 'week' && dirty.size) {
-    toast('Je hebt niet-opgeslagen prijzen. Sla eerst op.', 'err');
+    toast(t('admin.unsaved'), 'err');
     return;
   }
   screen = next;
   render();
 }
 
-function render() {
+export function render() {
   // Not logged in? Nothing of the admin is drawn at all.
   if (!store.getSession().admin) {
     $('#view-admin').classList.add('is-locked');
@@ -60,32 +61,30 @@ function render() {
 
 function renderWeek() {
   const list = store.products().filter(p => p.active !== false);
+  const notice = store.getSession().canSave ? '' : readOnlyNotice();
 
   $('#admin-head').innerHTML = `
     <div>
-      <div class="panel-title">Weekprijzen</div>
-      <div class="panel-sub">Tab of Enter om naar de volgende te springen. Prijzen zijn inclusief btw.</div>
+      <div class="panel-title">${esc(t('admin.week'))}</div>
+      <div class="panel-sub">${esc(t('admin.weekHint'))}</div>
     </div>`;
-
-  const notice = store.getSession().canSave ? '' : readOnlyNotice();
 
   $('#admin-body').innerHTML = list.length
     ? notice + `<div class="week">${list.map(p => `
         <label class="week-row">
           <span class="thumb">${photoMarkup(p)}</span>
           <span>
-            <span class="week-name">${esc(p.nl)}</span>
-            <span class="week-unit"> &middot; per ${esc(UNIT_LABEL[p.unit] || p.unit)}</span>
+            <span class="week-name">${esc(pName(p))}</span>
+            <span class="week-unit"> &middot; ${esc(t('sell.perUnit', { unit: unit(p.unit) }))}</span>
           </span>
           <span class="week-field">
             <span class="week-euro">&euro;</span>
             <input class="price-input" type="text" inputmode="decimal"
               data-id="${esc(p.id)}" value="${formatEuro(p.price)}"
-              aria-label="Prijs voor ${esc(p.nl)}">
+              aria-label="${esc(t('admin.priceFor', { name: pName(p) }))}">
           </span>
         </label>`).join('')}</div>`
-    : emptyState('leaf', 'Nog geen groenten',
-        'Ga naar Alle groenten en voeg de eerste toe.');
+    : emptyState('leaf', t('admin.emptyTitle'), t('admin.emptyHint'));
 
   renderWeekFoot();
 
@@ -126,13 +125,13 @@ function renderWeekFoot() {
   const n = dirty.size;
   $('#admin-foot').innerHTML = `
     <span class="panel-sub">
-      ${n ? `<span class="dirty-count">${n} ${n === 1 ? 'prijs' : 'prijzen'} gewijzigd</span>`
-          : 'Geen wijzigingen'}
+      ${n ? `<span class="dirty-count">${esc(plural(n, 'admin.changed'))}</span>`
+          : esc(t('admin.noChanges'))}
     </span>
     <span class="spacer"></span>
-    ${n ? `<button class="btn btn-ghost btn-sm" id="btn-undo-week">${icon('undo')} Herstellen</button>` : ''}
+    ${n ? `<button class="btn btn-ghost btn-sm" id="btn-undo-week">${icon('undo')} ${esc(t('btn.restore'))}</button>` : ''}
     <button class="btn btn-primary btn-sm" id="btn-save-week" ${n ? '' : 'disabled'}>
-      ${icon('save')} Opslaan
+      ${icon('save')} ${esc(t('btn.save'))}
     </button>`;
 
   const save = $('#btn-save-week');
@@ -149,11 +148,11 @@ async function saveWeek() {
     dirty.clear();
     renderWeek();
     onChanged();
-    toast(`${changed} ${changed === 1 ? 'prijs' : 'prijzen'} opgeslagen`, 'ok');
+    toast(plural(changed, 'admin.saved'), 'ok');
   } catch (err) {
     if (err instanceof store.AuthError) { await store.loadSession(); return handleAuthLoss(); }
     // Reload so the screen shows what is really stored, not what we hoped.
-    toast(`Opslaan mislukt: ${err.message}`, 'err');
+    toast(t('admin.saveFailed', { msg: err.message }), 'err');
     await store.load();
     dirty.clear();
     renderWeek();
@@ -167,15 +166,15 @@ async function saveWeek() {
 function renderProducts() {
   $('#admin-head').innerHTML = `
     <div>
-      <div class="panel-title">Alle groenten</div>
-      <div class="panel-sub">${store.products().length} in de lijst</div>
+      <div class="panel-title">${esc(t('admin.products'))}</div>
+      <div class="panel-sub">${esc(t('admin.inList', { n: store.products().length }))}</div>
     </div>
     <span class="spacer"></span>
-    <input class="search" id="admin-search" type="search" placeholder="Zoeken..." aria-label="Zoeken">
-    <button class="btn btn-primary btn-sm" id="btn-new">${icon('plus')} Nieuwe groente</button>`;
+    <input class="search" id="admin-search" type="search"
+      placeholder="${esc(t('admin.search'))}" aria-label="${esc(t('admin.search'))}">
+    <button class="btn btn-primary btn-sm" id="btn-new">${icon('plus')} ${esc(t('admin.new'))}</button>`;
 
-  $('#admin-foot').innerHTML =
-    `<span class="panel-sub">Prijzen zijn consumentenprijzen inclusief btw, precies zoals je ze in Hanka typt.</span>`;
+  $('#admin-foot').innerHTML = `<span class="panel-sub">${esc(t('admin.priceNote'))}</span>`;
 
   drawTable('');
 
@@ -197,29 +196,30 @@ function drawTable(query) {
 
   if (!list.length) {
     $('#admin-body').innerHTML = q
-      ? emptyState('search', `Niets gevonden voor "${query}"`, 'Probeer een ander woord.')
-      : emptyState('leaf', 'Nog geen groenten', 'Klik op Nieuwe groente om te beginnen.');
+      ? emptyState('search', t('admin.noResults', { q: query }), t('admin.noResultsHint'))
+      : emptyState('leaf', t('admin.emptyTitle'), t('admin.emptyHint2'));
     return;
   }
 
   $('#admin-body').innerHTML = `
     <table class="table">
       <thead><tr>
-        <th style="width:64px"></th><th>Naam</th><th>Categorie</th><th>Eenheid</th>
-        <th class="right">Prijs</th><th>Status</th><th style="width:96px"></th>
+        <th style="width:64px"></th><th>${esc(t('col.name'))}</th><th>${esc(t('col.category'))}</th>
+        <th>${esc(t('col.unit'))}</th><th class="right">${esc(t('col.price'))}</th>
+        <th>${esc(t('col.status'))}</th><th style="width:96px"></th>
       </tr></thead>
       <tbody>${list.map(p => `
         <tr>
           <td><span class="thumb">${photoMarkup(p)}</span></td>
-          <td><div class="cell-nl">${esc(p.nl)}</div><div class="cell-en">${esc(p.en || '')}</div></td>
+          <td><div class="cell-nl">${esc(pName(p))}</div><div class="cell-en">${esc(pSub(p))}</div></td>
           <td>${esc(categoryName(p.category))}</td>
-          <td>${esc(UNIT_LABEL[p.unit] || p.unit)}</td>
+          <td>${esc(unit(p.unit))}</td>
           <td class="right num">&euro; ${formatEuro(p.price)}</td>
-          <td><span class="pill ${p.active === false ? 'pill-off' : ''}">${p.active === false ? 'uit' : 'actief'}</span></td>
+          <td><span class="pill ${p.active === false ? 'pill-off' : ''}">${esc(p.active === false ? t('status.off') : t('status.active'))}</span></td>
           <td>
             <div class="row-actions">
-              <button class="line-remove" data-edit="${esc(p.id)}" aria-label="${esc(p.nl)} bewerken">${icon('pencil')}</button>
-              <button class="line-remove" data-del="${esc(p.id)}" aria-label="${esc(p.nl)} verwijderen">${icon('trash')}</button>
+              <button class="line-remove" data-edit="${esc(p.id)}" aria-label="${esc(t('act.edit', { name: pName(p) }))}">${icon('pencil')}</button>
+              <button class="line-remove" data-del="${esc(p.id)}" aria-label="${esc(t('act.delete', { name: pName(p) }))}">${icon('trash')}</button>
             </div>
           </td>
         </tr>`).join('')}
@@ -235,14 +235,16 @@ function drawTable(query) {
 }
 
 function categoryName(id) {
-  return store.categories().find(c => c.id === id)?.nl || id;
+  const c = store.categories().find(x => x.id === id);
+  return c ? cName(c) : id;
 }
 
 async function removeProduct(id) {
   const p = store.byId(id);
   const ok = await confirmDialog(
-    `${p.nl} verwijderen?`,
-    'De groente verdwijnt uit het verkoopscherm en van de prijslijst. Je kunt dit direct daarna nog ongedaan maken.'
+    t('del.title', { name: pName(p) }),
+    t('del.text'),
+    t('btn.delete')
   );
   if (!ok) return;
 
@@ -253,7 +255,7 @@ async function removeProduct(id) {
   drawTable($('#admin-search')?.value || '');
   onChanged();
 
-  toast(`${p.nl} verwijderd`, 'info', 'Ongedaan maken', async () => {
+  toast(t('del.done', { name: pName(p) }), 'info', t('basket.undo'), async () => {
     list.splice(at, 0, p);
     await persist();
     drawTable($('#admin-search')?.value || '');
@@ -271,58 +273,58 @@ function renderEdit() {
 
   $('#admin-head').innerHTML = `
     <div>
-      <div class="panel-title">${isNew ? 'Nieuwe groente' : esc(p.nl)}</div>
-      <div class="panel-sub">${isNew ? 'Vul in wat op het schap staat.' : 'Wijzigingen gelden direct aan de kassa.'}</div>
+      <div class="panel-title">${isNew ? esc(t('form.newTitle')) : esc(pName(p))}</div>
+      <div class="panel-sub">${esc(isNew ? t('form.newHint') : t('form.editHint'))}</div>
     </div>`;
 
   $('#admin-body').innerHTML = `
     <div class="form">
       <div class="field">
-        <label for="f-nl">Naam (Nederlands)</label>
+        <label for="f-nl">${esc(t('form.nameNl'))}</label>
         <input class="input" id="f-nl" value="${esc(p.nl)}" autocomplete="off">
         <div class="err" id="e-nl"></div>
       </div>
       <div class="field">
-        <label for="f-en">Naam (Engels)</label>
+        <label for="f-en">${esc(t('form.nameEn'))}</label>
         <input class="input" id="f-en" value="${esc(p.en || '')}" autocomplete="off">
-        <div class="hint">Staat onder de Nederlandse naam op de tegel en op de prijslijst.</div>
+        <div class="hint">${esc(t('form.nameEnHint'))}</div>
       </div>
 
       <div class="field">
-        <label for="f-cat">Categorie</label>
+        <label for="f-cat">${esc(t('form.category'))}</label>
         <select class="select" id="f-cat">
           ${store.categories().map(c =>
-            `<option value="${esc(c.id)}" ${c.id === p.category ? 'selected' : ''}>${esc(c.nl)}</option>`).join('')}
+            `<option value="${esc(c.id)}" ${c.id === p.category ? 'selected' : ''}>${esc(cName(c))}</option>`).join('')}
         </select>
       </div>
       <div class="field">
-        <label for="f-unit">Eenheid</label>
+        <label for="f-unit">${esc(t('form.unit'))}</label>
         <select class="select" id="f-unit">
-          <option value="kg"   ${p.unit === 'kg' ? 'selected' : ''}>per kg — wegen</option>
-          <option value="stuk" ${p.unit === 'stuk' ? 'selected' : ''}>per stuk — tellen</option>
-          <option value="bos"  ${p.unit === 'bos' ? 'selected' : ''}>per bos — tellen</option>
+          <option value="kg"   ${p.unit === 'kg' ? 'selected' : ''}>${esc(t('form.unitKg'))}</option>
+          <option value="stuk" ${p.unit === 'stuk' ? 'selected' : ''}>${esc(t('form.unitStuk'))}</option>
+          <option value="bos"  ${p.unit === 'bos' ? 'selected' : ''}>${esc(t('form.unitBos'))}</option>
         </select>
       </div>
 
       <div class="field">
-        <label for="f-price">Verkoopprijs (&euro;, incl. btw)</label>
+        <label for="f-price">${esc(t('form.price'))}</label>
         <input class="input num" id="f-price" inputmode="decimal" value="${formatEuro(p.price)}">
         <div class="err" id="e-price"></div>
       </div>
       <div class="field">
-        <label for="f-cost">Inkoopprijs (&euro;, optioneel)</label>
+        <label for="f-cost">${esc(t('form.cost'))}</label>
         <input class="input num" id="f-cost" inputmode="decimal" value="${p.cost == null ? '' : formatEuro(p.cost)}">
-        <div class="hint" id="margin-hint">Alleen ter informatie — wordt nergens mee gerekend.</div>
+        <div class="hint" id="margin-hint">${esc(t('form.costHint'))}</div>
       </div>
 
       <div class="field field-wide">
-        <label>Foto</label>
+        <label>${esc(t('form.photo'))}</label>
         <div class="photo-pick">
           <span class="thumb" id="f-thumb">${photoMarkup(p)}</span>
           <div>
             <input type="file" id="f-photo" accept="image/*" style="display:none">
-            <button class="btn btn-ghost btn-sm" id="btn-photo">${icon('image')} Foto kiezen</button>
-            <div class="hint" style="margin-top:8px">Een telefoonfoto is prima. Wordt vierkant bijgesneden.</div>
+            <button class="btn btn-ghost btn-sm" id="btn-photo">${icon('image')} ${esc(t('form.pickPhoto'))}</button>
+            <div class="hint" style="margin-top:8px">${esc(t('form.photoHint'))}</div>
           </div>
         </div>
       </div>
@@ -330,20 +332,20 @@ function renderEdit() {
       <div class="field">
         <label class="switch" for="f-active">
           <input type="checkbox" id="f-active" ${p.active !== false ? 'checked' : ''}>
-          <span>Actief — zichtbaar aan de kassa</span>
+          <span>${esc(t('form.active'))}</span>
         </label>
       </div>
       <div class="field">
-        <label for="f-sort">Volgorde</label>
+        <label for="f-sort">${esc(t('form.sort'))}</label>
         <input class="input num" id="f-sort" inputmode="numeric" value="${p.sort ?? 0}">
-        <div class="hint">Lager staat vooraan in het verkoopscherm.</div>
+        <div class="hint">${esc(t('form.sortHint'))}</div>
       </div>
     </div>`;
 
   $('#admin-foot').innerHTML = `
-    <button class="btn btn-ghost btn-sm" id="btn-cancel">${icon('back')} Terug</button>
+    <button class="btn btn-ghost btn-sm" id="btn-cancel">${icon('back')} ${esc(t('btn.back'))}</button>
     <span class="spacer"></span>
-    <button class="btn btn-primary btn-sm" id="btn-save">${icon('save')} Opslaan</button>`;
+    <button class="btn btn-primary btn-sm" id="btn-save">${icon('save')} ${esc(t('btn.save'))}</button>`;
 
   $('#btn-cancel').onclick = () => { editing = null; screen = 'products'; render(); };
   $('#btn-save').onclick = saveProduct;
@@ -360,14 +362,13 @@ function updateMargin() {
   const cost = $('#f-cost').value.trim() ? toCents($('#f-cost').value) : null;
   const hint = $('#margin-hint');
   if (price && cost && cost > 0) {
-    const pct = Math.round(((price - cost) / cost) * 100);
-    hint.textContent = `Marge ${pct}% — alleen ter informatie, wordt nergens mee gerekend.`;
+    hint.textContent = t('form.margin', { pct: Math.round(((price - cost) / cost) * 100) });
   } else {
-    hint.textContent = 'Alleen ter informatie — wordt nergens mee gerekend.';
+    hint.textContent = t('form.costHint');
   }
 }
 
-/** Downscale to 400x400 in the browser so we never write a 4 MB phone photo. */
+/** Downscale to 400x400 in the browser so we never send a 4 MB phone photo. */
 async function pickPhoto(file) {
   if (!file) return;
   try {
@@ -384,7 +385,7 @@ async function pickPhoto(file) {
     editing._photoBlob = blob;
     $('#f-thumb').innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="">`;
   } catch (err) {
-    toast(`Foto lukte niet: ${err.message}`, 'err');
+    toast(t('form.photoFailed', { msg: err.message }), 'err');
   }
 }
 
@@ -394,8 +395,8 @@ async function saveProduct() {
   const costRaw = $('#f-cost').value.trim();
   const cost = costRaw ? toCents(costRaw) : null;
 
-  $('#e-nl').textContent = nl ? '' : 'Vul een Nederlandse naam in.';
-  $('#e-price').textContent = price === null ? 'Vul een prijs in, bijvoorbeeld 3,80.' : '';
+  $('#e-nl').textContent = nl ? '' : t('form.needName');
+  $('#e-price').textContent = price === null ? t('form.needPrice') : '';
   $('#f-nl').setAttribute('aria-invalid', String(!nl));
   $('#f-price').setAttribute('aria-invalid', String(price === null));
   if (!nl || price === null) {
@@ -403,7 +404,7 @@ async function saveProduct() {
     return;
   }
   if (costRaw && cost === null) {
-    toast('Inkoopprijs is geen geldig bedrag.', 'err');
+    toast(t('form.badCost'), 'err');
     return;
   }
 
@@ -436,14 +437,14 @@ async function saveProduct() {
       Object.assign(store.byId(p.id), { photoUrl: p.photoUrl });
     }
     await persist();
-    toast(`${nl} opgeslagen`, 'ok');
+    toast(t('form.savedOk', { name: nl }), 'ok');
     editing = null;
     screen = 'products';
     render();
     onChanged();
   } catch (err) {
     if (err instanceof store.AuthError) { await store.loadSession(); return handleAuthLoss(); }
-    toast(`Opslaan mislukt: ${err.message}`, 'err');
+    toast(t('admin.saveFailed', { msg: err.message }), 'err');
   }
 }
 

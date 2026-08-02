@@ -55,7 +55,7 @@ export async function logout() {
 
 export async function load() {
   const res = await fetch('/api/products', { cache: 'no-store' });
-  if (!res.ok) throw new Error(`prijslijst gaf ${await fail(res)}`);
+  if (!res.ok) throw new Error(await fail(res));
   db = await res.json();
   db.products.sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
   return db;

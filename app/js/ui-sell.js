@@ -5,9 +5,10 @@
 import * as store from './store.js';
 import {
   lineTotal, basketTotal, formatEuro, formatQty, checkWeight,
-  isWeighed, parseNumber, UNIT_LABEL
+  isWeighed, parseNumber
 } from './money.js';
-import { $, $$, esc, icon, photoMarkup, toast, emptyState } from './ui.js';
+import { t, unit, pName, pSub, cName } from './i18n.js';
+import { $, esc, icon, photoMarkup, toast, emptyState } from './ui.js';
 
 let category = 'alles';
 let current = null;   // product being weighed
@@ -28,8 +29,8 @@ export function init() {
   });
 
   $('#product-grid').addEventListener('click', e => {
-    const t = e.target.closest('.tile');
-    if (t) openWeigh(t.dataset.id);
+    const tile = e.target.closest('.tile');
+    if (tile) openWeigh(tile.dataset.id);
   });
 
   $('#keypad').addEventListener('click', e => {
@@ -43,7 +44,7 @@ export function init() {
   $('#btn-clear').onclick = clearBasket;
 
   $('#basket-lines').addEventListener('click', e => {
-    const r = e.target.closest('.line-remove');
+    const r = e.target.closest('.line-remove:not(.line-print)');
     if (r) removeLine(Number(r.dataset.i));
     const p = e.target.closest('.line-print');
     if (p) printSticker(basket[Number(p.dataset.i)]);
@@ -53,19 +54,21 @@ export function init() {
   document.addEventListener('keydown', onKey);
 }
 
-/** Called when the admin changes products, so the grid never goes stale. */
+/** Called when products or the language change, so nothing goes stale. */
 export function refresh() {
   renderRail();
   renderGrid();
+  renderBasket();
+  if (current) drawWeigh();
 }
 
 // --- category rail --------------------------------------------------------
 
 function renderRail() {
-  const cats = [{ id: 'alles', nl: 'Alles' }, ...store.categories()];
+  const cats = [{ id: 'alles', nl: t('cat.all'), en: t('cat.all') }, ...store.categories()];
   $('#rail').innerHTML = cats.map(c => `
     <button class="rail-btn" data-cat="${esc(c.id)}"
-      aria-pressed="${c.id === category}">${esc(c.nl)}</button>`).join('');
+      aria-pressed="${c.id === category}">${esc(cName(c))}</button>`).join('');
 }
 
 // --- tile grid ------------------------------------------------------------
@@ -80,8 +83,7 @@ function renderGrid() {
   const grid = $('#product-grid');
 
   if (!list.length) {
-    grid.innerHTML = emptyState('leaf', 'Niets in deze categorie',
-      'Voeg groenten toe bij Beheer, of kies een andere categorie.');
+    grid.innerHTML = emptyState('leaf', t('sell.emptyCat'), t('sell.emptyCatHint'));
     return;
   }
 
@@ -89,10 +91,10 @@ function renderGrid() {
     <button class="tile" data-id="${esc(p.id)}">
       <div class="tile-photo">${photoMarkup(p)}</div>
       <div class="tile-body">
-        <span class="tile-nl">${esc(p.nl)}</span>
-        <span class="tile-en">${esc(p.en)}</span>
+        <span class="tile-nl">${esc(pName(p))}</span>
+        <span class="tile-en">${esc(pSub(p))}</span>
         <span class="tile-price">&euro;&nbsp;${formatEuro(p.price)}
-          <span class="tile-unit">/ ${esc(UNIT_LABEL[p.unit] || p.unit)}</span></span>
+          <span class="tile-unit">/ ${esc(unit(p.unit))}</span></span>
       </div>
     </button>`).join('');
 }
@@ -103,20 +105,22 @@ function openWeigh(id) {
   current = store.byId(id);
   if (!current) return;
   typed = '';
-
-  $('#weigh-photo').innerHTML = photoMarkup(current);
-  $('#weigh-nl').textContent = current.nl;
-  $('#weigh-en').textContent = current.en || '';
-  $('#weigh-rate').innerHTML =
-    `&euro;&nbsp;${formatEuro(current.price)} <span class="tile-unit">per ${esc(UNIT_LABEL[current.unit] || current.unit)}</span>`;
-  $('#qty-unit').textContent = isWeighed(current) ? 'kg' : (UNIT_LABEL[current.unit] || current.unit);
-  // Whole pieces only - a decimal point there is just a way to make a mistake.
-  $('#key-dot').disabled = !isWeighed(current);
-
   $('#pane-grid').hidden = true;
   $('#pane-weigh').hidden = false;
-  drawQty();
+  drawWeigh();
   $('#btn-add').focus();
+}
+
+function drawWeigh() {
+  $('#weigh-photo').innerHTML = photoMarkup(current);
+  $('#weigh-nl').textContent = pName(current);
+  $('#weigh-en').textContent = pSub(current);
+  $('#weigh-rate').innerHTML =
+    `&euro;&nbsp;${formatEuro(current.price)} <span class="tile-unit">${esc(t('sell.perUnit', { unit: unit(current.unit) }))}</span>`;
+  $('#qty-unit').textContent = unit(current.unit);
+  // Whole pieces only - a decimal point there is just a way to make a mistake.
+  $('#key-dot').disabled = !isWeighed(current);
+  drawQty();
 }
 
 function closeWeigh() {
@@ -145,6 +149,13 @@ function qtyNumber() {
   return typed === '' || typed === '.' ? NaN : parseNumber(typed);
 }
 
+function checkQty(qty) {
+  if (isWeighed(current)) return checkWeight(qty);
+  return qty >= 1
+    ? { ok: true, level: 'ok', key: '', vars: {} }
+    : { ok: false, level: 'error', key: 'sell.enterCount', vars: {} };
+}
+
 function drawQty() {
   const el = $('#qty-value');
   const show = typed === '' ? '0' : typed.replace('.', ',');
@@ -163,14 +174,11 @@ function drawQty() {
     return;
   }
 
-  const check = isWeighed(current)
-    ? checkWeight(qty)
-    : (qty >= 1 ? { ok: true, level: 'ok', message: '' }
-                : { ok: false, level: 'error', message: 'Vul een aantal in.' });
-
+  const check = checkQty(qty);
   note.className = `weigh-note is-${check.level}`;
-  note.innerHTML = check.message
-    ? icon(check.level === 'error' ? 'alert' : 'warn') + `<span>${esc(check.message)}</span>`
+  note.innerHTML = check.key
+    ? icon(check.level === 'error' ? 'alert' : 'warn') +
+      `<span>${esc(t(check.key, check.vars))}</span>`
     : '';
 
   const cents = check.ok ? lineTotal(current, qty) : 0;
@@ -180,9 +188,7 @@ function drawQty() {
 
 function addLine() {
   const qty = qtyNumber();
-  if (!current || Number.isNaN(qty)) return;
-  const check = isWeighed(current) ? checkWeight(qty) : { ok: qty >= 1 };
-  if (!check.ok) return;
+  if (!current || Number.isNaN(qty) || !checkQty(qty).ok) return;
 
   basket.push({ product: current, qty, cents: lineTotal(current, qty) });
   closeWeigh();
@@ -195,29 +201,28 @@ function renderBasket() {
   const box = $('#basket-lines');
 
   if (!basket.length) {
-    box.innerHTML = `<div class="basket-empty">Kies een groente.<br>Weeg op de DIGI,
-      typ het gewicht, en het bedrag verschijnt hier.</div>`;
+    box.innerHTML = `<div class="basket-empty">${t('basket.empty')}</div>`;
   } else {
     box.innerHTML = basket.map((l, i) => `
       <div class="line">
         <div>
-          <div class="line-name">${esc(l.product.nl)}</div>
+          <div class="line-name">${esc(pName(l.product))}</div>
           <div class="line-qty">${esc(formatQty(l.product, l.qty))}
-            ${esc(UNIT_LABEL[l.product.unit] || l.product.unit)}
+            ${esc(unit(l.product.unit))}
             &times; &euro;&nbsp;${formatEuro(l.product.price)}</div>
         </div>
         <span class="line-amount">${formatEuro(l.cents)}</span>
         <button class="line-remove line-print" data-i="${i}"
-          title="Sticker printen" aria-label="Sticker printen voor ${esc(l.product.nl)}">${icon('printer')}</button>
+          title="${esc(t('basket.stickerTitle'))}"
+          aria-label="${esc(t('basket.printSticker', { name: pName(l.product) }))}">${icon('printer')}</button>
         <button class="line-remove" data-i="${i}"
-          aria-label="${esc(l.product.nl)} verwijderen">${icon('x')}</button>
+          aria-label="${esc(t('basket.remove', { name: pName(l.product) }))}">${icon('x')}</button>
       </div>`).join('');
   }
 
   const total = basketTotal(basket);
-  const ro = $('#readout');
   $('#readout-value').textContent = formatEuro(total);
-  ro.classList.toggle('is-zero', total === 0);
+  $('#readout').classList.toggle('is-zero', total === 0);
   $('#btn-done').disabled = !basket.length;
   $('#btn-clear').disabled = !basket.length;
 }
@@ -225,7 +230,7 @@ function renderBasket() {
 function removeLine(i) {
   const [gone] = basket.splice(i, 1);
   renderBasket();
-  toast(`${gone.product.nl} verwijderd`, 'info', 'Ongedaan maken', () => {
+  toast(t('basket.removed', { name: pName(gone.product) }), 'info', t('basket.undo'), () => {
     basket.splice(i, 0, gone);
     renderBasket();
   });
@@ -235,7 +240,7 @@ function clearBasket() {
   const snapshot = basket;
   basket = [];
   renderBasket();
-  toast('Mandje gewist', 'info', 'Ongedaan maken', () => {
+  toast(t('basket.cleared'), 'info', t('basket.undo'), () => {
     basket = snapshot;
     renderBasket();
   });
@@ -244,7 +249,7 @@ function clearBasket() {
 function finish() {
   const total = basketTotal(basket);
   store.logSale(basket, total);
-  toast(`Typ ${formatEuro(total)} in Hanka op de toets groenten`, 'ok');
+  toast(t('sell.typeInHanka', { amount: formatEuro(total) }), 'ok');
   basket = [];
   renderBasket();
 }
@@ -254,11 +259,11 @@ function finish() {
 function printSticker(line) {
   const p = line.product;
   $('#sticker').innerHTML = `
-    <div class="st-name">${esc(p.nl)}</div>
-    <div class="st-en">${esc(p.en || '')}</div>
-    <div class="st-row"><span>${esc(formatQty(p, line.qty))} ${esc(UNIT_LABEL[p.unit] || p.unit)}</span>
-      <span>&euro; ${formatEuro(p.price)} / ${esc(UNIT_LABEL[p.unit] || p.unit)}</span></div>
-    <div class="st-total"><span>Totaal</span><b>&euro; ${formatEuro(line.cents)}</b></div>
+    <div class="st-name">${esc(pName(p))}</div>
+    <div class="st-en">${esc(pSub(p))}</div>
+    <div class="st-row"><span>${esc(formatQty(p, line.qty))} ${esc(unit(p.unit))}</span>
+      <span>&euro; ${formatEuro(p.price)} / ${esc(unit(p.unit))}</span></div>
+    <div class="st-total"><span>${esc(t('sticker.total'))}</span><b>&euro; ${formatEuro(line.cents)}</b></div>
     <div class="st-date">${new Date().toLocaleDateString('nl-NL')} &middot; Wereld Supermarkt</div>`;
 
   document.body.classList.add('printing-sticker');
@@ -269,7 +274,7 @@ function printSticker(line) {
 // --- keyboard -------------------------------------------------------------
 
 function onKey(e) {
-  if ($('#view-sell').classList.contains('is-active') === false) return;
+  if (!$('#view-sell').classList.contains('is-active')) return;
   if (e.target.matches('input, textarea')) return;
 
   if (current) {
