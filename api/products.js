@@ -8,9 +8,14 @@ import { requireAdmin } from './_lib.js';
 const KEY = 'products.json';
 const hasBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
+/** JSON.parse rejects a UTF-8 BOM, and Windows editors love adding one. */
+function parseJson(text) {
+  return JSON.parse(text.replace(/^\uFEFF/, ''));
+}
+
 async function readSeed() {
   const file = path.join(process.cwd(), 'data', 'products.json');
-  return JSON.parse(await readFile(file, 'utf8'));
+  return parseJson(await readFile(file, 'utf8'));
 }
 
 async function blobUrl() {
@@ -31,7 +36,7 @@ export default async function handler(req, res) {
           const r = await fetch(`${url}?ts=${Date.now()}`, { cache: 'no-store' });
           if (r.ok) {
             res.setHeader('Cache-Control', 'no-store');
-            return res.status(200).json(await r.json());
+            return res.status(200).json(parseJson(await r.text()));
           }
         }
       }
