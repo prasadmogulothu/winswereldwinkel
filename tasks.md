@@ -150,6 +150,36 @@ Twee bugs onderweg gevonden en opgelost:
 - [ ] Nog even nakijken door iemand die vloeiend Nederlands spreekt — de Nederlandse
       teksten komen uit de oorspronkelijke versie, de Engelse zijn nieuw
 
+## Phase 10 — iPhone
+
+Het telefoonscherm is een eigen indeling, geen ingedrukte kassa-indeling.
+
+- [x] Categorieën als chips die je zijwaarts veegt
+- [x] Groenten twee naast elkaar, vierkante foto's
+- [x] **Bedrag vastgezet onderaan het scherm**, boven de home-indicator; mandjeregels
+      groeien erboven tot ~30 vh en scrollen daarna
+- [x] Weegtoetsenbord onder de foto in plaats van ernaast
+- [x] Kop over twee regels: merk + taalknop, daaronder de drie tabs
+- [x] Productlijst verbergt categorie, eenheid en status — naam, prijs en de twee
+      knoppen blijven
+- [x] A4-prijslijst wordt één kolom en past op de schermbreedte
+- [x] `viewport-fit=cover` + `env(safe-area-inset-*)` voor notch en home-indicator
+- [x] `100dvh` in plaats van `100%` — anders valt de onderkant onder de Safari-balk
+- [x] Alle raakvlakken ≥ 44×44 pt (taalknop was 34, `.btn-sm` 40, pictogramknoppen 38)
+- [x] Geen invoerveld onder 16 px, anders zoomt iOS in bij het aantikken
+- [x] `-webkit-text-size-adjust` tegen opgeblazen tekst in liggende stand
+- [x] Aparte regel voor liggende stand op een telefoon (weinig hoogte)
+- [x] **Gemeten op 390 × 844:** nergens zijwaarts scrollen, niets breder dan het
+      scherm, geen enkel raakvlak onder 44 pt op verkoop, beheer, productlijst,
+      prijslijst en schermweergave; hele verkoopflow werkt (2,615 kg × € 3,80 = € 9,94)
+- [x] Uitgeleverde bestanden gecontroleerd op de live site
+
+- [ ] **Op zijn echte iPhone bekijken.** Getest in een 390 × 844 viewport in Chrome,
+      niet op iOS Safari zelf. Safari verschilt op scrollmomentum, de dynamische
+      werkbalk en lettergrootte.
+- [ ] Hem laten kiezen: **Deel → Zet op beginscherm** geeft een schermvullende
+      weergave zonder Safari-balken
+
 ## Open questions for the shop
 
 - [ ] Does the DIGI scale have an RS-232 or USB socket on the back? A photo of the model label would
