@@ -137,6 +137,19 @@ Twee bugs onderweg gevonden en opgelost:
 - [ ] Overweeg het wachtwoord te wijzigen nu het in de chat heeft gestaan:
       `vercel env add ADMIN_PASSWORD production --value ... --force --yes` + opnieuw deployen
 
+## Phase 9 — Taal
+
+- [x] `app/js/i18n.js` — woordenboek EN/NL, `t()`, meervoud, namen en categorieën
+- [x] **Engels als standaard**, EN/NL-knop rechtsboven, keuze onthouden per apparaat
+- [x] Statische teksten via `data-i18n` in `index.html`, niet nagebouwd in JS
+- [x] `money.js` geeft meldingssleutels in plaats van zinnen — blijft vrij van taal en DOM
+- [x] Bedragen blijven `9,94` met komma in beide talen (dat wordt in Hanka getypt)
+- [x] **Geverifieerd op productie:** tabs, tegels, categorieën, weekprijzen, inlogscherm
+      en prijslijst schakelen allemaal mee; 43 rekencontroles groen
+
+- [ ] Nog even nakijken door iemand die vloeiend Nederlands spreekt — de Nederlandse
+      teksten komen uit de oorspronkelijke versie, de Engelse zijn nieuw
+
 ## Open questions for the shop
 
 - [ ] Does the DIGI scale have an RS-232 or USB socket on the back? A photo of the model label would

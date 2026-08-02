@@ -6,6 +6,13 @@ buiten de winkel, niets te installeren.
 Er draait ook een online versie op **https://wins-wereld-winkel.vercel.app** —
 zie [Online versie](#online-versie) onderaan.
 
+De interface staat standaard in het **Engels**, met een **EN / NL**-knop rechtsboven.
+De keuze wordt per apparaat onthouden. Bedragen blijven in beide talen `9,94` met een
+komma, want dat is precies wat er in Hanka getypt wordt.
+
+**Inrichten bij je vriend in de winkel? Lees [`integration.md`](integration.md)** —
+daar staat wat er van hem nodig is en wat juist niet.
+
 > **Let op: twee gescheiden prijslijsten.**
 > De kassa-pc bewaart prijzen in `data\products.json` op die pc. De online versie
 > bewaart ze in Vercel Blob. Ze praten **niet** met elkaar. Een prijs die je online
