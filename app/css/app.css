@@ -15,6 +15,16 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;    /* kills the 300ms tap delay */
+  /* iOS inflates text in landscape unless told not to. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Anything that scrolls should keep momentum on iOS and not rubber-band the
+   whole page along with it. */
+.pane, .basket-lines, .panel-body, .rail, .side, .kiosk {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -34,15 +44,21 @@ button { cursor: pointer; border: 0; background: none; }
 
 .app {
   display: grid;
-  grid-template-rows: 60px 1fr;
-  height: 100%;
+  grid-template-rows: auto 1fr;
+  /* dvh, not vh: iOS Safari's toolbar slides away and 100vh would leave the
+     bottom of the app permanently under it. */
+  height: 100dvh;
+  min-height: 100%;
 }
 
 .topbar {
   display: flex;
   align-items: center;
   gap: var(--s-5);
+  min-height: 60px;
   padding: 0 var(--s-4);
+  padding-left: max(var(--s-4), env(safe-area-inset-left));
+  padding-right: max(var(--s-4), env(safe-area-inset-right));
   background: var(--slate-raised);
   border-bottom: 1px solid var(--line);
 }
@@ -848,10 +864,158 @@ dialog::backdrop { background: rgba(0,0,0,.55); }
   :root { --t-readout: 76px; }
 }
 
-@media (max-width: 900px) {
-  #view-sell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-  .rail { flex-direction: row; overflow-x: auto; border-left: 0; border-bottom: 1px solid var(--line); }
-  .basket { grid-row: 2; border-right: 0; }
-  .weigh { grid-template-columns: 1fr; }
+/* =====================================================================
+   Phone — iPhone in portrait is the target here.
+   The counter keeps the three-column till layout; a phone gets the
+   categories on top, the produce in the middle, and the amount pinned to
+   the bottom where a thumb can reach it.
+   ===================================================================== */
+
+@media (max-width: 760px) {
+
+  /* --- topbar over two rows: the brand and three tabs never fit on one --- */
+  .topbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--s-2) var(--s-3);
+    padding-top: var(--s-2);
+    padding-bottom: var(--s-2);
+  }
+  .brand { font-size: var(--t-base); align-self: center; }
+  /* 34px is fine under a mouse and too small under a thumb. */
+  .lang { justify-self: end; }
+  .lang-btn { min-width: 48px; height: 44px; }
+  .tabs { grid-column: 1 / -1; margin-left: 0; gap: var(--s-1); }
+  .tab { flex: 1; justify-content: center; height: 46px; padding: 0 var(--s-2); font-size: var(--t-sm); }
+
+  /* --- sell: categories / produce / amount ---------------------------- */
+  #view-sell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'rail' 'stage' 'basket';
+  }
+  .rail { grid-area: rail; }
+  .stage { grid-area: stage; }
+  .basket { grid-area: basket; }
+
+  .rail {
+    flex-direction: row;
+    gap: var(--s-2);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: var(--s-2) var(--s-3);
+    border-left: 0;
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail-btn {
+    flex: none;
+    min-height: 44px;
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 999px;
+    padding: 0 var(--s-4);
+    white-space: nowrap;
+  }
+  .rail-btn[aria-pressed='true'] { border-bottom-color: transparent; background: var(--chalk); color: var(--slate); }
+
+  .pane { padding: var(--s-3); }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: var(--s-2); }
+  .tile-photo { aspect-ratio: 1 / 1; }
+  .tile-price { font-size: var(--t-base); }
+
+  /* Amount bar pinned to the bottom, clear of the home indicator. */
+  .basket {
+    grid-template-rows: auto auto;
+    border-right: 0;
+    border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .basket-head { display: none; }
+  .basket-lines { max-height: 30vh; padding: var(--s-2) var(--s-2) 0; }
+  /* The "pick a vegetable" hint belongs on a big screen with room to spare.
+     On a phone the bottom bar collapses to just the amount until there is
+     something in the basket. */
+  .basket-empty { display: none; }
+  .basket-lines:has(.basket-empty) { padding: 0; }
+  .readout-wrap { display: grid; grid-template-columns: 1fr auto; gap: var(--s-2); align-items: end; }
+  .readout { padding: var(--s-2) var(--s-3); }
+  .readout-value { font-size: clamp(38px, 12vw, 56px); }
+  .readout-euro { font-size: var(--t-md); }
+  .readout-hint { font-size: 10px; margin-top: 2px; }
+  .basket-actions { margin-top: 0; grid-template-columns: auto auto; }
+  .basket-actions .btn { padding: 0 var(--s-4); }
+
+  /* --- weigh panel: photo and keypad stacked -------------------------- */
+  .weigh { grid-template-columns: 1fr; gap: var(--s-3); }
+  .weigh-left { grid-template-rows: auto auto; gap: var(--s-3); }
+  .weigh-photo { width: 64px; height: 64px; }
+  .weigh-title { font-size: var(--t-md); }
+  .qty-field { padding: var(--s-3); }
+  .qty-value { font-size: var(--t-lg); min-height: 36px; }
+  .weigh-total { margin-top: 0; padding: var(--s-3); }
+  .weigh-total-value { font-size: var(--t-lg); }
+  .key { height: 60px; font-size: var(--t-md); }
+
+  /* --- admin ---------------------------------------------------------- */
+  #view-admin { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .side {
+    flex-direction: row;
+    gap: var(--s-2);
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: var(--s-2) var(--s-3);
+  }
+  .side-label { display: none; }
+  .side .rail-btn { flex: 1; text-align: center; }
+
+  /* The compact sizes are desktop affordances; a thumb needs the full 44. */
+  .btn-sm { min-height: 44px; }
+  .line-remove { width: 44px; height: 44px; }
+
+  .panel-head { flex-wrap: wrap; padding: var(--s-3); }
+  .panel-head .search { order: 3; width: 100%; min-width: 0; }
+  .panel-head .spacer { display: none; }
+  .panel-body { padding: var(--s-3); }
+  .panel-foot { padding: var(--s-2) var(--s-3); padding-bottom: max(var(--s-2), env(safe-area-inset-bottom)); }
+
+  .week { grid-template-columns: 1fr; }
   .form { grid-template-columns: 1fr; }
+
+  /* Category, unit and status are not worth a sideways scroll on a phone.
+     The name, the price and the two buttons are what the owner came for. */
+  .table th:nth-child(3), .table td:nth-child(3),
+  .table th:nth-child(4), .table td:nth-child(4),
+  .table th:nth-child(6), .table td:nth-child(6) { display: none; }
+  .table th, .table td { padding: var(--s-2); }
+
+  /* --- price list ------------------------------------------------------ */
+  .sheet {
+    width: auto;
+    min-height: 0;
+    padding: var(--s-4);
+    box-shadow: none;
+    border-radius: var(--radius);
+  }
+  .sheet-cats { columns: 1; }
+  .sheet-title { font-size: var(--t-md); }
+  .sheet-head { flex-wrap: wrap; gap: var(--s-1); }
+  .kiosk { padding: var(--s-3); }
+  .kiosk-grid { grid-template-columns: 1fr; gap: var(--s-2); }
+
+  /* --- misc ------------------------------------------------------------ */
+  .toast-stack { left: var(--s-3); right: var(--s-3); bottom: calc(var(--s-3) + env(safe-area-inset-bottom)); transform: none; }
+  .toast { justify-content: center; }
+  dialog { max-width: calc(100vw - var(--s-6)); }
+  .login { margin-top: var(--s-5); }
+}
+
+/* Landscape on a phone: almost no height, so give it all to the produce. */
+@media (max-width: 900px) and (max-height: 460px) {
+  .basket-lines { max-height: 22vh; }
+  .readout-value { font-size: 32px; }
+  .tab { height: 40px; }
+  .key { height: 46px; }
 }

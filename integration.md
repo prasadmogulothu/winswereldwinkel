@@ -166,7 +166,33 @@ with the password can change prices, so the password is the whole security model
 
 ---
 
-# Part 4 — Language
+# Part 4 — On a phone
+
+Just send him **https://wins-wereld-winkel.vercel.app**. Nothing to install, no
+App Store, works in Safari.
+
+The phone layout is not the till layout squeezed down — the pieces are rearranged
+for a thumb:
+
+- Categories become a row of chips you swipe sideways.
+- Produce goes two-up, with square photos.
+- **The amount sits pinned to the bottom of the screen**, above the home
+  indicator, so it is always visible and always reachable. The basket lines grow
+  above it up to about a third of the screen, then scroll.
+- The weigh keypad stacks under the photo instead of sitting beside it.
+- In the product table, category / unit / status are hidden — the name, the price
+  and the two buttons are what he came for. They come back on a bigger screen.
+
+Tell him to **Share → Add to Home Screen**. It then opens full-screen with no
+Safari chrome and behaves like an app.
+
+Checked at 390 × 844 (iPhone 14/15/16 portrait): no sideways scrolling anywhere,
+nothing wider than the screen, every tappable thing at least 44 × 44 pt, and no
+text field small enough to make iOS zoom in when tapped.
+
+---
+
+# Part 5 — Language
 
 The interface ships in **English by default**, with a **EN / NL** toggle in the
 top-right. The choice is remembered per device, so the counter can sit in English
@@ -181,7 +207,7 @@ types `9.94` is a bug waiting to happen.
 
 ---
 
-# Part 5 — Troubleshooting
+# Part 6 — Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -195,7 +221,7 @@ types `9.94` is a bug waiting to happen.
 
 ---
 
-# Part 6 — What is deliberately not built
+# Part 7 — What is deliberately not built
 
 - **Barcode on the sticker.** Nothing scans it when the cashier types the amount.
   Add it if the dealer enables price-embedded barcodes; Hanka already supports
