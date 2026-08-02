@@ -1,0 +1,99 @@
+/* Groenten module - design tokens.
+   Palette derived from produce on wet slate: the vegetables' own colours carry the
+   contrast, nothing else on screen is allowed to be that saturated. */
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/archivo-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/archivo-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/archivo-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/ibmplexsans-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/ibmplexsans-600.woff2') format('woff2');
+}
+
+:root {
+  /* --- colour ------------------------------------------------------- */
+  --slate:        #14181C;  /* ground - near-black with a green undertone */
+  --slate-raised: #1E242A;  /* tiles, panels, cards */
+  --slate-sunken: #0D1013;  /* the readout well, keypad recesses */
+  --chalk:        #F2F4F0;  /* primary text - market chalk */
+  --stone:        #99A1A9;  /* labels, secondary text (5.9:1 on slate) */
+  --line:         #2C343B;  /* hairlines, tile borders */
+
+  --okra:         #7FB800;  /* primary action, confirm */
+  --okra-press:   #6A9B00;
+  --turmeric:     #F2A104;  /* the amount readout, unsaved changes */
+  --chilli:       #E04343;  /* destructive, errors - only */
+
+  --on-okra:      #10160A;  /* dark text on the green button, 9.7:1 */
+  --on-turmeric:  #1A1200;
+
+  /* --- type --------------------------------------------------------- */
+  --font-display: 'Archivo', 'Segoe UI', system-ui, sans-serif;
+  --font-ui:      'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+
+  --t-xs:   12px;
+  --t-sm:   14px;
+  --t-base: 16px;
+  --t-md:   20px;
+  --t-lg:   28px;
+  --t-xl:   40px;
+  --t-readout: 96px;   /* the signature. Nothing else uses this. */
+
+  /* --- spacing (4px rhythm) ----------------------------------------- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+
+  --radius:    10px;
+  --radius-sm:  6px;
+
+  /* Touch floor. This is a 15" panel poked with a knuckle, so above the 44px
+     guideline, not at it. */
+  --touch: 56px;
+
+  --shadow-tile: 0 1px 0 rgba(255,255,255,.04) inset, 0 2px 6px rgba(0,0,0,.35);
+
+  --ease: cubic-bezier(.2, .7, .3, 1);
+  --dur:  180ms;
+}
+
+/* Staff can trigger reduced motion on the till if the animation annoys them. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 0ms; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}

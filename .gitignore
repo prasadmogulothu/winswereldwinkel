@@ -1,0 +1,15 @@
+node_modules/
+.vercel/
+.env
+.env.local
+
+# Informational sale log, written at the counter. Local to each machine.
+data/sales.jsonl
+data/*.tmp
+
+# Photos of his actual counter, not part of the app.
+setup-screenshots/
+
+Thumbs.db
+desktop.ini
+.DS_Store

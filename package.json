@@ -1,0 +1,10 @@
+{
+  "name": "wins-wereld-winkel",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Groentemodule voor Wereld Supermarkt - verkoop, beheer en prijslijst",
+  "dependencies": {
+    "@vercel/blob": "^0.27.0"
+  }
+}

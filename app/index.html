@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Groenten — Wereld Supermarkt</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- Lucide icons, inlined. No CDN, no icon font, no emoji. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="i-weight"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.9 1.5L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.9-2.5L19.4 9.5A2 2 0 0 0 17.5 8Z"/></g>
+    <g id="i-sliders"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"/></g>
+    <g id="i-list"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></g>
+    <g id="i-x"><path d="M18 6 6 18M6 6l12 12"/></g>
+    <g id="i-check"><path d="M20 6 9 17l-5-5"/></g>
+    <g id="i-trash"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></g>
+    <g id="i-plus"><path d="M5 12h14M12 5v14"/></g>
+    <g id="i-printer"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></g>
+    <g id="i-warn"><path d="M21.7 18 13.7 4a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3ZM12 9v4M12 17h.01"/></g>
+    <g id="i-alert"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></g>
+    <g id="i-back"><path d="m12 19-7-7 7-7M19 12H5"/></g>
+    <g id="i-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></g>
+    <g id="i-save"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7M7 3v4a1 1 0 0 0 1 1h7"/></g>
+    <g id="i-image"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.4-4.4a2 2 0 0 0-2.8 0L6 18"/></g>
+    <g id="i-leaf"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10Z"/><path d="M2 21c0-3 1.9-5.4 5.1-6C9.5 14.5 12 13 13 12"/></g>
+    <g id="i-backspace"><path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><path d="m12 9 6 6M18 9l-6 6"/></g>
+    <g id="i-undo"><path d="M3 12a9 9 0 1 0 9-9 9.8 9.8 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/></g>
+    <g id="i-pencil"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></g>
+    <g id="i-monitor"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></g>
+  </defs>
+</svg>
+
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">WERELD <span class="brand-dim">· Groenten</span></div>
+    <nav class="tabs" role="tablist" aria-label="Hoofdmenu">
+      <button class="tab" role="tab" id="tab-sell"  aria-selected="true"  aria-controls="view-sell">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-weight"/></svg>
+        Verkoop
+      </button>
+      <button class="tab" role="tab" id="tab-admin" aria-selected="false" aria-controls="view-admin">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sliders"/></svg>
+        Beheer
+      </button>
+      <button class="tab" role="tab" id="tab-list"  aria-selected="false" aria-controls="view-list">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-list"/></svg>
+        Prijslijst
+      </button>
+    </nav>
+  </header>
+
+  <!-- ============================ VERKOOP ============================ -->
+  <section class="view is-active" id="view-sell" role="tabpanel" aria-labelledby="tab-sell">
+
+    <aside class="basket">
+      <div class="basket-head">Deze klant</div>
+      <div class="basket-lines" id="basket-lines"></div>
+
+      <div class="readout-wrap">
+        <div class="readout is-zero" id="readout" role="status" aria-live="polite">
+          <div class="readout-amount">
+            <span class="readout-euro">&euro;</span>
+            <span class="readout-value" id="readout-value">0,00</span>
+          </div>
+          <div class="readout-hint">Typ dit in Hanka &rarr; groenten</div>
+        </div>
+        <div class="basket-actions">
+          <button class="btn btn-primary" id="btn-done" disabled>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>
+            Klaar
+          </button>
+          <button class="btn btn-ghost btn-danger" id="btn-clear" disabled aria-label="Mandje wissen">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-trash"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="stage">
+      <div class="pane" id="pane-grid">
+        <div class="grid" id="product-grid"></div>
+      </div>
+
+      <div class="pane" id="pane-weigh" hidden>
+        <div class="weigh">
+          <div class="weigh-left">
+            <div class="weigh-head">
+              <div class="weigh-photo" id="weigh-photo"></div>
+              <div>
+                <div class="weigh-title" id="weigh-nl"></div>
+                <div class="weigh-sub" id="weigh-en"></div>
+                <div class="weigh-rate" id="weigh-rate"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="qty-field">
+                <span class="qty-value is-placeholder" id="qty-value">0<span class="qty-caret"></span></span>
+                <span class="qty-unit" id="qty-unit">kg</span>
+              </div>
+              <div class="weigh-note" id="weigh-note"></div>
+
+              <div class="weigh-total">
+                <span class="weigh-total-label">Bedrag</span>
+                <span class="weigh-total-value" id="weigh-total">&euro; 0,00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="keypad" id="keypad">
+            <button class="key" data-k="7">7</button>
+            <button class="key" data-k="8">8</button>
+            <button class="key" data-k="9">9</button>
+            <button class="key" data-k="4">4</button>
+            <button class="key" data-k="5">5</button>
+            <button class="key" data-k="6">6</button>
+            <button class="key" data-k="1">1</button>
+            <button class="key" data-k="2">2</button>
+            <button class="key" data-k="3">3</button>
+            <button class="key" data-k="." id="key-dot">,</button>
+            <button class="key" data-k="0">0</button>
+            <button class="key key-util" data-k="del" aria-label="Wissen">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-backspace"/></svg>
+            </button>
+
+            <div class="weigh-actions">
+              <button class="btn btn-ghost" id="btn-weigh-back">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-back"/></svg>
+                Terug
+              </button>
+              <button class="btn btn-primary" id="btn-add" disabled>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-plus"/></svg>
+                Toevoegen
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="rail" id="rail" aria-label="Categorie"></nav>
+  </section>
+
+  <!-- ============================ BEHEER ============================= -->
+  <section class="view" id="view-admin" role="tabpanel" aria-labelledby="tab-admin">
+    <aside class="side">
+      <div class="side-label">Beheer</div>
+      <button class="rail-btn" id="nav-week" aria-pressed="true">Weekprijzen</button>
+      <button class="rail-btn" id="nav-products" aria-pressed="false">Alle groenten</button>
+    </aside>
+
+    <div class="panel">
+      <div class="panel-head" id="admin-head"></div>
+      <div class="panel-body" id="admin-body"></div>
+      <div class="panel-foot" id="admin-foot"></div>
+    </div>
+  </section>
+
+  <!-- ========================== PRIJSLIJST =========================== -->
+  <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list">
+    <div class="panel">
+      <div class="panel-head no-print">
+        <div>
+          <div class="panel-title">Prijslijst</div>
+          <div class="panel-sub">Voor het schap. Alleen actieve groenten.</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn btn-ghost btn-sm" id="btn-kiosk">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-monitor"/></svg>
+          Schermweergave
+        </button>
+        <button class="btn btn-primary btn-sm" id="btn-print-sheet">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-printer"/></svg>
+          Print A4
+        </button>
+      </div>
+      <div class="panel-body" id="list-body"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Price sticker. Hidden on screen; print CSS hides everything else. -->
+<div id="sticker" aria-hidden="true"></div>
+
+<div class="toast-stack" id="toasts"></div>
+
+<dialog id="confirm">
+  <h2 class="dialog-title" id="confirm-title"></h2>
+  <p class="dialog-text" id="confirm-text"></p>
+  <div class="dialog-actions">
+    <button class="btn btn-ghost btn-sm" value="cancel" id="confirm-no">Annuleren</button>
+    <button class="btn btn-sm btn-danger btn-ghost" value="ok" id="confirm-yes">Verwijderen</button>
+  </div>
+</dialog>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
