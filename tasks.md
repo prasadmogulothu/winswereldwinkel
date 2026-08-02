@@ -109,6 +109,34 @@ beats any stock image here.
 
 ---
 
+## Phase 8 — Online versie op Vercel
+
+Live op **https://wins-wereld-winkel.vercel.app**, gekoppeld aan
+`github.com/prasadmogulothu/winswereldwinkel`.
+
+- [x] `api/session.js`, `api/login.js`, `api/products.js`, `api/photo.js`
+- [x] Wachtwoord op **alle** schrijfroutes, server-side. `admin` / wachtwoord uit
+      `ADMIN_PASSWORD` in Vercel — staat niet in de repo
+- [x] HttpOnly + Secure + SameSite=Strict sessiecookie, HMAC-ondertekend, 12 uur geldig
+- [x] Vercel Blob store `groenten-prijslijst` voor de prijslijst
+- [x] Login-scherm in Beheer; Verkoop en Prijslijst blijven open
+- [x] `serve.ps1` kreeg dezelfde `/api/session` en `/api/products` routes, zodat
+      kassa en online exact dezelfde front-end draaien
+- [x] **Geverifieerd op productie:** fout wachtwoord → 401 · PUT zonder login → 401 ·
+      inloggen → 200 · drie prijswijzigingen achter elkaar, elk meteen zichtbaar ·
+      44 producten, 5 categorieën
+
+Twee bugs onderweg gevonden en opgelost:
+- UTF-8 BOM in `products.json` (PowerShell `-Encoding utf8`) liet `JSON.parse` klappen
+- Vaste blob-naam + CDN met minimaal 60 s cache maakte een net opgeslagen prijs tot een
+  minuut onzichtbaar; nu schrijft elke opslag een nieuwe naam
+
+- [ ] **Beslissen welke lijst de echte is.** De kassa-pc en de online versie hebben elk
+      hun eigen prijslijst en praten niet met elkaar. Zolang beide in gebruik zijn lopen
+      ze uit elkaar.
+- [ ] Overweeg het wachtwoord te wijzigen nu het in de chat heeft gestaan:
+      `vercel env add ADMIN_PASSWORD production --value ... --force --yes` + opnieuw deployen
+
 ## Open questions for the shop
 
 - [ ] Does the DIGI scale have an RS-232 or USB socket on the back? A photo of the model label would

@@ -3,6 +3,15 @@
 Een groentemodule die naast Hanka op de kassa-pc draait. Geen internet, geen server
 buiten de winkel, niets te installeren.
 
+Er draait ook een online versie op **https://wins-wereld-winkel.vercel.app** —
+zie [Online versie](#online-versie) onderaan.
+
+> **Let op: twee gescheiden prijslijsten.**
+> De kassa-pc bewaart prijzen in `data\products.json` op die pc. De online versie
+> bewaart ze in Vercel Blob. Ze praten **niet** met elkaar. Een prijs die je online
+> wijzigt komt niet op de kassa, en andersom ook niet. Kies er één als de echte,
+> anders gaan ze uit elkaar lopen.
+
 ## Starten
 
 Dubbelklik **`start.bat`**. Er opent een venster zonder adresbalk. Alt+Tab om tussen
@@ -89,6 +98,46 @@ Kladblok openen om te zien dat je wijziging er echt in staat.
 - **`tools/fetch-photos.ps1`** — haalt productfoto's van Wikimedia Commons. Heeft internet
   nodig, maar alleen op de pc waar je het draait — de kassa nooit. Bronvermelding komt in
   `app/photos/CREDITS.md`.
+
+## Online versie
+
+**https://wins-wereld-winkel.vercel.app**
+
+- **Verkoop** en **Prijslijst** zijn open — geen inloggen nodig, iedereen mag kijken.
+- **Beheer** vraagt om inloggen: gebruikersnaam `admin`.
+
+Het wachtwoord staat **niet** in deze repo. Het staat als `ADMIN_PASSWORD` in de
+Vercel-projectinstellingen. Wijzigen:
+
+```
+vercel env rm  ADMIN_PASSWORD production --yes
+vercel env add ADMIN_PASSWORD production --value NIEUWWACHTWOORD --yes
+vercel deploy --prod --yes
+```
+
+Een nieuwe waarde geldt pas na een nieuwe deploy. Wil je iedereen uitloggen, doe dan
+hetzelfde met `SESSION_SECRET`.
+
+### Wat waar staat
+
+| Onderdeel | Kassa-pc | Online |
+|---|---|---|
+| Server | `serve.ps1` (Windows HttpListener) | Serverless functies in `api/` |
+| Prijslijst | `data\products.json` | Vercel Blob, map `prijslijst/` |
+| Inloggen | niet nodig, staat achter de toonbank | wachtwoord op alle schrijfroutes |
+| Foto's | `app\photos\` | dezelfde 44 statisch; nieuwe uploads naar Blob |
+| Back-up | map kopiëren naar USB | laatste 5 versies blijven in Blob staan |
+
+Elke opslag schrijft een **nieuw** bestand in Blob in plaats van er één te overschrijven.
+Publieke blob-URLs staan namelijk achter een CDN dat minstens een minuut cachet — met
+één vaste naam gaf een net gewijzigde prijs nog even de oude waarde terug.
+
+### Opnieuw uitrollen
+
+```
+git push            # Vercel bouwt automatisch vanaf GitHub
+vercel deploy --prod --yes   # of handmatig
+```
 
 ## Nog open
 
