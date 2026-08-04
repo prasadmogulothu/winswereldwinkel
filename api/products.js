@@ -54,8 +54,8 @@ export default async function handler(req, res) {
 
       if (!hasBlob()) {
         return res.status(501).json({
-          error: 'Opslaan staat uit: er is geen Blob-opslag gekoppeld. ' +
-                 'Voeg in Vercel een Blob store toe (BLOB_READ_WRITE_TOKEN) en deploy opnieuw.'
+          error: 'Saving is off: no Blob storage is attached. ' +
+                 'Add a Blob store in Vercel (BLOB_READ_WRITE_TOKEN) and deploy again.'
         });
       }
 
@@ -63,10 +63,10 @@ export default async function handler(req, res) {
       // Validate before writing: a malformed body must never replace the price
       // list, same rule as the till version.
       if (!body || !Array.isArray(body.products) || !Array.isArray(body.categories)) {
-        return res.status(400).json({ error: 'Ongeldige prijslijst - niet opgeslagen.' });
+        return res.status(400).json({ error: 'Invalid price list - not saved.' });
       }
       if (body.products.length === 0) {
-        return res.status(400).json({ error: 'Lege prijslijst - niet opgeslagen.' });
+        return res.status(400).json({ error: 'Empty price list - not saved.' });
       }
 
       const { put, del } = await import('@vercel/blob');
@@ -81,13 +81,13 @@ export default async function handler(req, res) {
         const old = (await versions()).slice(KEEP);
         if (old.length) await del(old.map(b => b.url));
       } catch (err) {
-        console.warn('opruimen oude versies mislukt:', err.message);
+        console.warn('pruning old versions failed:', err.message);
       }
 
       return res.status(200).json({ ok: true });
     }
 
-    return res.status(405).json({ error: 'Methode niet toegestaan' });
+    return res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {
     console.error('products endpoint:', err);
     return res.status(500).json({ error: err.message });

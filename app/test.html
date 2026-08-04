@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Groenten — rekentest</title>
+<title>Groenten — money &amp; weight test</title>
 <style>
   body { font: 15px/1.6 ui-monospace, Consolas, monospace; background:#14181C; color:#F2F4F0;
          margin:0; padding:32px; }
@@ -18,8 +18,8 @@
 </style>
 </head>
 <body>
-<h1>Rekentest — geld en gewicht</h1>
-<p class="sub">Alles moet groen zijn voordat dit aan de kassa gebruikt wordt.</p>
+<h1>Money and weight test</h1>
+<p class="sub">Everything must be green before this is used at the counter.</p>
 <div id="out"></div>
 <div id="sum"></div>
 
@@ -38,7 +38,7 @@ function is(actual, expected, label) {
   ok ? pass++ : fail++;
   const d = document.createElement('div');
   d.className = 'row ' + (ok ? 'pass' : 'fail');
-  d.textContent = ok ? label : `${label}  —  kreeg ${JSON.stringify(actual)}, verwacht ${JSON.stringify(expected)}`;
+  d.textContent = ok ? label : `${label}  —  got ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)}`;
   out.appendChild(d);
 }
 
@@ -47,8 +47,8 @@ const stuk = { unit: 'stuk', price: 110 };  // Komkommer, EUR 1,10 each
 const bos  = { unit: 'bos',  price: 150 };  // Koriander, EUR 1,50 a bunch
 
 // --- the case straight off his Hanka receipt ---------------------------
-is(lineTotal(kg, 2.615), 994, '2,615 kg x 3,80 = 9,94   (the receipt line on his till)');
-is(formatEuro(lineTotal(kg, 2.615)), '9,94', 'en dat leest als "9,94"');
+is(lineTotal(kg, 2.615), 994, '2,615 kg x 3,80 = 9,94   (the receipt line from his till)');
+is(formatEuro(lineTotal(kg, 2.615)), '9,94', 'and that reads as "9,94"');
 
 // --- rounding, where float maths would betray us -----------------------
 is(lineTotal({ unit:'kg', price: 100 }, 0.005), 1, '5 g x 1,00 = 0,01 (rounds up, not to 0)');
@@ -59,62 +59,62 @@ is(lineTotal(kg, 0.1), 38, '100 g x 3,80 = 0,38');
 // A weight the DIGI cannot show is snapped BEFORE it is priced, so the amount
 // always matches a weight that was really on the display.
 is(lineTotal({ unit:'kg', price: 333 }, 3.333), 1111,
-   '3,333 kg wordt eerst 3,335 (de schaal springt in 5 g), dus 11,11 - niet 11,10');
+   '3,333 kg snaps to 3,335 first (the scale steps in 5 g), so 11,11 - not 11,10');
 
 // --- counted items get no decimals -------------------------------------
-is(lineTotal(stuk, 3), 330, '3 komkommers x 1,10 = 3,30');
-is(lineTotal(bos, 2), 300, '2 bossen koriander x 1,50 = 3,00');
-is(lineTotal(stuk, 2.7), 330, '2,7 komkommers telt als 3 - je verkoopt geen halve');
+is(lineTotal(stuk, 3), 330, '3 cucumbers x 1,10 = 3,30');
+is(lineTotal(bos, 2), 300, '2 bunches of coriander x 1,50 = 3,00');
+is(lineTotal(stuk, 2.7), 330, '2,7 cucumbers counts as 3 - you do not sell half a cucumber');
 
 // --- the scale can only show multiples of 5 g --------------------------
-is(snapWeight(2.617), 2.615, 'snapWeight(2,617) = 2,615');
-is(snapWeight(2.618), 2.620, 'snapWeight(2,618) = 2,620');
-is(snapWeight(1.0), 1.0, 'snapWeight(1,000) blijft 1,000');
-is(SCALE_STEP_KG, 0.005, 'stap van de DIGI = 5 g');
+is(snapWeight(2.617), 2.615, 'snapWeight(2.617) = 2.615');
+is(snapWeight(2.618), 2.620, 'snapWeight(2.618) = 2.620');
+is(snapWeight(1.0), 1.0, 'snapWeight(1.000) stays 1.000');
+is(SCALE_STEP_KG, 0.005, 'DIGI step = 5 g');
 
 // --- limits of the actual scale on his counter -------------------------
-is(checkWeight(2.615).level, 'ok', '2,615 kg is gewoon goed');
-is(checkWeight(0.05).level, 'warn', '50 g waarschuwt - onder het minimum van de schaal');
-is(checkWeight(0.05).ok, true, '...maar wordt wel geaccepteerd');
-// Meldingen zijn sleutels, geen zinnen: money.js kent geen taal en geen DOM.
-is(checkWeight(0.05).key, 'scale.tooLight', '50 g geeft de sleutel scale.tooLight');
-is(checkWeight(20).key, 'scale.tooHeavy', '20 kg geeft de sleutel scale.tooHeavy');
-is(checkWeight(2.615).key, '', 'een goed gewicht geeft geen melding');
-is(checkWeight(15.001).ok, false, '15,001 kg wordt geweigerd - schaal gaat tot 15 kg');
-is(checkWeight(15.0).ok, true, '15,000 kg mag nog net');
-is(checkWeight(0).ok, false, '0 kg wordt geweigerd');
-is(checkWeight(-1).ok, false, 'negatief gewicht wordt geweigerd');
-is(checkWeight('abc').ok, false, 'onzin wordt geweigerd');
-is(SCALE_MIN_KG, 0.1, 'minimum van de DIGI = 100 g');
-is(SCALE_MAX_KG, 15, 'maximum van de DIGI = 15 kg');
+is(checkWeight(2.615).level, 'ok', '2,615 kg is simply fine');
+is(checkWeight(0.05).level, 'warn', '50 g warns - below the scale minimum');
+is(checkWeight(0.05).ok, true, '...but is still accepted');
+// Messages are keys, not sentences: money.js knows no language and no DOM.
+is(checkWeight(0.05).key, 'scale.tooLight', '50 g returns the key scale.tooLight');
+is(checkWeight(20).key, 'scale.tooHeavy', '20 kg returns the key scale.tooHeavy');
+is(checkWeight(2.615).key, '', 'a valid weight returns no message');
+is(checkWeight(15.001).ok, false, '15,001 kg is rejected - the scale goes to 15 kg');
+is(checkWeight(15.0).ok, true, '15,000 kg is just allowed');
+is(checkWeight(0).ok, false, '0 kg is rejected');
+is(checkWeight(-1).ok, false, 'a negative weight is rejected');
+is(checkWeight('abc').ok, false, 'nonsense is rejected');
+is(SCALE_MIN_KG, 0.1, 'DIGI minimum = 100 g');
+is(SCALE_MAX_KG, 15, 'DIGI maximum = 15 kg');
 
 // --- basket -------------------------------------------------------------
-is(basketTotal([{ cents: 994 }, { cents: 405 }]), 1399, 'mandje: 9,94 + 4,05 = 13,99');
-is(basketTotal([]), 0, 'leeg mandje = 0,00');
-is(formatEuro(basketTotal([{ cents: 994 }, { cents: 405 }])), '13,99', 'en dat leest als "13,99"');
+is(basketTotal([{ cents: 994 }, { cents: 405 }]), 1399, 'basket: 9,94 + 4,05 = 13,99');
+is(basketTotal([]), 0, 'empty basket = 0,00');
+is(formatEuro(basketTotal([{ cents: 994 }, { cents: 405 }])), '13,99', 'and that reads as "13,99"');
 
 // --- formatting ---------------------------------------------------------
 is(formatEuro(0), '0,00', 'formatEuro(0) = "0,00"');
-is(formatEuro(5), '0,05', 'formatEuro(5) = "0,05" - de nul voor de komma blijft');
+is(formatEuro(5), '0,05', 'formatEuro(5) = "0,05" - the leading zero stays');
 is(formatEuro(100), '1,00', 'formatEuro(100) = "1,00"');
 is(formatEuro(123456), '1234,56', 'formatEuro(123456) = "1234,56"');
-is(formatQty(kg, 2.615), '2,615', 'gewicht toont drie decimalen');
-is(formatQty(stuk, 3), '3', 'stuks tonen geen decimalen');
+is(formatQty(kg, 2.615), '2,615', 'weight shows three decimals');
+is(formatQty(stuk, 3), '3', 'pieces show no decimals');
 
 // --- typing ------------------------------------------------------------
-is(parseNumber('2,615'), 2.615, 'komma typen werkt');
-is(parseNumber('2.615'), 2.615, 'punt typen werkt ook');
-is(parseNumber(' 2,615 '), 2.615, 'spaties eromheen maken niet uit');
-is(Number.isNaN(parseNumber('')), true, 'leeg veld is geen getal - anders zou een lege prijs 0,00 worden');
-is(Number.isNaN(parseNumber('   ')), true, 'alleen spaties is ook geen getal');
-is(Number.isNaN(parseNumber(null)), true, 'null is geen getal');
-is(parseNumber('0'), 0, 'maar een getypte 0 is wel gewoon nul');
+is(parseNumber('2,615'), 2.615, 'typing a comma works');
+is(parseNumber('2.615'), 2.615, 'typing a full stop works too');
+is(parseNumber(' 2,615 '), 2.615, 'surrounding spaces do not matter');
+is(Number.isNaN(parseNumber('')), true, 'an empty field is not a number - otherwise a blank price would become 0,00');
+is(Number.isNaN(parseNumber('   ')), true, 'whitespace only is not a number either');
+is(Number.isNaN(parseNumber(null)), true, 'null is not a number');
+is(parseNumber('0'), 0, 'but a typed 0 really is zero');
 
 const sum = document.getElementById('sum');
 sum.className = fail === 0 ? 'green' : 'red';
 sum.textContent = fail === 0
-  ? `Alles goed — ${pass} controles geslaagd.`
-  : `${fail} van ${pass + fail} controles MISLUKT. Niet gebruiken aan de kassa.`;
+  ? `All good — ${pass} checks passed.`
+  : `${fail} of ${pass + fail} checks FAILED. Do not use at the counter.`;
 </script>
 </body>
 </html>

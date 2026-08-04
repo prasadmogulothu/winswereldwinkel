@@ -35,11 +35,13 @@ $listener.Prefixes.Add("http://localhost:$Port/")
 try {
   $listener.Start()
 } catch {
-  Write-Host "Kon poort $Port niet openen: $($_.Exception.Message)" -ForegroundColor Red
-  Write-Host "Draait er al een Groenten-server? Sluit die eerst." -ForegroundColor Yellow
+  # ${Port} braces required: a bare colon after a variable is PowerShell's
+  # scope separator, so "$Port:" fails to parse.
+  Write-Host "Could not open port ${Port}: $($_.Exception.Message)" -ForegroundColor Red
+  Write-Host "Is a Groenten server already running? Close that one first." -ForegroundColor Yellow
   exit 1
 }
-Write-Host "Groenten draait op http://localhost:$Port  (Ctrl+C om te stoppen)" -ForegroundColor Green
+Write-Host "Groenten running on http://localhost:$Port  (Ctrl+C to stop)" -ForegroundColor Green
 
 # Resolve a request path to a real file inside $base, or $null if it escapes the folder.
 function Resolve-Safe([string]$base, [string]$relative) {
@@ -120,7 +122,7 @@ while ($listener.IsListening) {
 
     if (($method -eq 'POST' -or $method -eq 'PUT') -and $path -eq '/api/photo') {
       $id = $req.QueryString['id']
-      if ($id -notmatch '^[a-z0-9\-]{1,60}$') { Send-Text $res '{"error":"Ongeldige id."}' 'application/json; charset=utf-8' 400; continue }
+      if ($id -notmatch '^[a-z0-9\-]{1,60}$') { Send-Text $res '{"error":"Invalid id."}' 'application/json; charset=utf-8' 400; continue }
       $ms = New-Object IO.MemoryStream
       $req.InputStream.CopyTo($ms)
       [IO.File]::WriteAllBytes((Join-Path $PhotoDir "$id.jpg"), $ms.ToArray())
@@ -140,7 +142,7 @@ while ($listener.IsListening) {
     }
 
     if ($null -eq $file -or -not (Test-Path $file -PathType Leaf)) {
-      Send-Text $res 'niet gevonden' 'text/plain; charset=utf-8' 404
+      Send-Text $res 'not found' 'text/plain; charset=utf-8' 404
       continue
     }
 
@@ -151,7 +153,7 @@ while ($listener.IsListening) {
     Send-Bytes $res ([IO.File]::ReadAllBytes($file)) $type
   }
   catch {
-    Write-Host "Fout bij $method $path : $($_.Exception.Message)" -ForegroundColor Red
-    try { Send-Text $res "serverfout: $($_.Exception.Message)" 'text/plain; charset=utf-8' 500 } catch {}
+    Write-Host "Error on $method $path : $($_.Exception.Message)" -ForegroundColor Red
+    try { Send-Text $res "server error: $($_.Exception.Message)" 'text/plain; charset=utf-8' 500 } catch {}
   }
 }

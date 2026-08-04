@@ -22,18 +22,18 @@ function tooManyTries(ip) {
 
 export default function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Methode niet toegestaan' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'onbekend';
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
   if (tooManyTries(ip)) {
-    return res.status(429).json({ error: 'Te veel pogingen. Wacht een minuut.' });
+    return res.status(429).json({ error: 'Too many attempts. Wait a minute.' });
   }
 
   const { user, password } = req.body ?? {};
   if (!checkLogin(user, password)) {
     // One message for both cases, so it never reveals which half was wrong.
-    return res.status(401).json({ error: 'Gebruikersnaam of wachtwoord klopt niet.' });
+    return res.status(401).json({ error: 'Username or password is not correct.' });
   }
 
   attempts.delete(ip);

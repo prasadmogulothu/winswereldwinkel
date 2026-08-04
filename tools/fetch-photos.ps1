@@ -53,7 +53,7 @@ function Find-CommonsImages([string]$term) {
       $code = $_.Exception.Response.StatusCode.value__
       if ($code -eq 429 -and $attempt -lt 4) {
         $wait = 5 * $attempt
-        Write-Host "  [429, $wait s wachten]" -NoNewline -ForegroundColor DarkGray
+        Write-Host "  [429, $wait s wait]" -NoNewline -ForegroundColor DarkGray
         Start-Sleep -Seconds $wait
         continue
       }
@@ -181,7 +181,7 @@ foreach ($p in $Products) {
     $credits += "- $($p.nl) [$($p.id).jpg] - $($hit.title), $($hit.license), $($hit.artist). $($hit.page)"
     $got++
   } else {
-    Write-Host "  NIET GEVONDEN" -ForegroundColor Yellow
+    Write-Host "  NOT FOUND" -ForegroundColor Yellow
     $missing += $p
   }
   Start-Sleep -Milliseconds $PAUSE_MS
@@ -189,10 +189,10 @@ foreach ($p in $Products) {
 
 if ($credits) {
   $header = @(
-    '# Fotoverantwoording',
+    '# Photo credits',
     '',
-    'Foto''s van Wikimedia Commons, bijgesneden naar 400x400. Licenties hieronder.',
-    'Eigen foto''s (via Beheer geupload) staan hier niet bij.',
+    'Photos from Wikimedia Commons, cropped to 400x400. Licences below.',
+    'Photos uploaded through Admin are not listed here.',
     ''
   )
   $path = Join-Path $PhotoDir 'CREDITS.md'
@@ -201,10 +201,10 @@ if ($credits) {
 }
 
 Write-Host ""
-Write-Host "Gedownload: $got   Overgeslagen (had al een foto): $skipped   Niet gevonden: $($missing.Count)"
+Write-Host "Downloaded: $got   Skipped (already had a photo): $skipped   Not found: $($missing.Count)"
 
 if ($missing.Count) {
   Write-Host ""
-  Write-Host "Geen foto gevonden voor - maak hier zelf een telefoonfoto van via Beheer:" -ForegroundColor Yellow
+  Write-Host "No photo found for these - take a phone photo via Admin:" -ForegroundColor Yellow
   $missing | ForEach-Object { Write-Host ("  - {0}  ({1})" -f $_.nl, $_.en) }
 }

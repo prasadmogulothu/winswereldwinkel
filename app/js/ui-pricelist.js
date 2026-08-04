@@ -1,4 +1,4 @@
-// Prijslijst - the A4 sheet for the vegetable aisle, plus a full-screen view
+// Price list - the A4 sheet for the vegetable aisle, plus a full-screen view
 // for the spare tablet.
 //
 // This replaces the customer-facing display: Hanka already owns the till's

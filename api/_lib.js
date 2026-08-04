@@ -70,7 +70,7 @@ export function isAdmin(req) {
 /** @returns {boolean} true if the request may continue */
 export function requireAdmin(req, res) {
   if (isAdmin(req)) return true;
-  res.status(401).json({ error: 'Niet ingelogd. Log opnieuw in.' });
+  res.status(401).json({ error: 'Not signed in. Please log in again.' });
   return false;
 }
 

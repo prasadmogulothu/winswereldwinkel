@@ -1,8 +1,8 @@
 # Groenten module — tasks
 
-> **Alles wat nog openstaat staat bij elkaar in [`integration.md`](integration.md),
-> Part 0** — met wie het moet doen en waarom het blokkeert. Dit bestand is de
-> bouwgeschiedenis per fase.
+> **Everything still outstanding is collected in [`integration.md`](integration.md),
+> Part 0** — with who has to do it and why it blocks. This file is the build history,
+> phase by phase.
 
 Offline vegetable admin + sell screen for Wereld Supermarkt, running on the till PC next to Hanka.
 
@@ -43,7 +43,7 @@ Legend: `[ ]` todo · `[x]` done · `[~]` in progress · `[!]` blocked / needs t
 - [x] **Verify:** all green. `2.615 × 3.80 = 994` · per-piece · `snapWeight(2.617) = 2.615` ·
       `0.05 kg` warns · `15.001 kg` rejects · `formatEuro(994) = "9,94"`
 
-## Phase 3 — Verkoop (sell screen)
+## Phase 3 — Sell screen
 
 - [x] Category rail (Alles / Bladgroen / Knollen / Pepers / Kruiden / Per stuk)
 - [x] Photo tile grid, 4-up at 1024px, 6-up at 1440px
@@ -57,19 +57,19 @@ Legend: `[ ]` todo · `[x]` done · `[~]` in progress · `[!]` blocked / needs t
 - [ ] **Verify at the shop:** weigh a real bag of tomatoes on the DIGI, type the kg, confirm the
       module's euro figure matches the scale's own € display
 
-## Phase 4 — Beheer (admin)
+## Phase 4 — Admin
 
 - [x] Product list with search and category filter
 - [x] Add / edit: NL name, EN name, unit (`kg` / `stuk` / `bos`), price, cost, category, active, sort
 - [x] Photo upload → `PUT /api/photo/<id>`
 - [x] **Weekprijzen** — one column of price inputs, Enter/Tab down, changed cells outlined turmeric,
-      one `Opslaan` with a count
+      one `Save` with a count
 - [x] Delete with confirm + undo toast
-- [x] **Verified:** changed Tomaat to € 4,25, `Opslaan`, confirmed `425` in `data/products.json`
+- [x] **Verified:** changed Tomato to EUR 4,25, saved, confirmed `425` in `data/products.json`
       on disk, reloaded, price survived. Malformed JSON is rejected server-side without
       touching the file.
 
-## Phase 5 — Prijslijst & printing
+## Phase 5 — Price list & printing
 
 - [x] Printable A4 aisle sheet — two columns, NL + EN, unit, price, date
 - [x] Full-screen kiosk view (for the spare tablet later)
@@ -104,7 +104,7 @@ beats any stock image here.
 - [x] Visible keyboard focus rings
 - [x] `prefers-reduced-motion` respected
 - [x] Press feedback under 100ms, no layout shift
-- [x] Empty states (`Nog geen groenten — voeg er een toe`)
+- [x] Empty states (`No vegetables yet — add one`)
 - [x] Error states with a recovery path
 - [x] Touch targets ≥ 56×56px, ≥ 12px apart
 - [ ] **Verify at the till, with his friend watching:** weigh → tap → type into Hanka's `groenten`
@@ -113,77 +113,90 @@ beats any stock image here.
 
 ---
 
-## Phase 8 — Online versie op Vercel
+## Phase 8 — Hosted version on Vercel
 
-Live op **https://wins-wereld-winkel.vercel.app**, gekoppeld aan
+Live at **https://wins-wereld-winkel.vercel.app**, connected to
 `github.com/prasadmogulothu/winswereldwinkel`.
 
 - [x] `api/session.js`, `api/login.js`, `api/products.js`, `api/photo.js`
-- [x] Wachtwoord op **alle** schrijfroutes, server-side. `admin` / wachtwoord uit
-      `ADMIN_PASSWORD` in Vercel — staat niet in de repo
-- [x] HttpOnly + Secure + SameSite=Strict sessiecookie, HMAC-ondertekend, 12 uur geldig
-- [x] Vercel Blob store `groenten-prijslijst` voor de prijslijst
-- [x] Login-scherm in Beheer; Verkoop en Prijslijst blijven open
-- [x] `serve.ps1` kreeg dezelfde `/api/session` en `/api/products` routes, zodat
-      kassa en online exact dezelfde front-end draaien
-- [x] **Geverifieerd op productie:** fout wachtwoord → 401 · PUT zonder login → 401 ·
-      inloggen → 200 · drie prijswijzigingen achter elkaar, elk meteen zichtbaar ·
-      44 producten, 5 categorieën
+- [x] Password on **every** write route, server-side. `admin` / password from
+      `ADMIN_PASSWORD` in Vercel — not in the repo
+- [x] HttpOnly + Secure + SameSite=Strict session cookie, HMAC-signed, valid 12 hours
+- [x] Vercel Blob store `groenten-prijslijst` for the price list
+- [x] Login screen in Admin; Sell and Price list stay open
+- [x] `serve.ps1` gained the same `/api/session` and `/api/products` routes, so the
+      till and the hosted version run an identical front-end
+- [x] **Verified on production:** wrong password -> 401 · PUT with no login -> 401 ·
+      login -> 200 · three price changes in a row, each visible immediately ·
+      44 products, 5 categories
 
-Twee bugs onderweg gevonden en opgelost:
-- UTF-8 BOM in `products.json` (PowerShell `-Encoding utf8`) liet `JSON.parse` klappen
-- Vaste blob-naam + CDN met minimaal 60 s cache maakte een net opgeslagen prijs tot een
-  minuut onzichtbaar; nu schrijft elke opslag een nieuwe naam
+Two bugs found and fixed along the way:
+- UTF-8 BOM in `products.json` (PowerShell `-Encoding utf8`) made `JSON.parse` throw
+- A fixed blob name behind a CDN with a 60 s floor left a just-saved price invisible
+  for up to a minute; every save now writes a new name
 
-- [ ] **Beslissen welke lijst de echte is.** De kassa-pc en de online versie hebben elk
-      hun eigen prijslijst en praten niet met elkaar. Zolang beide in gebruik zijn lopen
-      ze uit elkaar.
-- [ ] Overweeg het wachtwoord te wijzigen nu het in de chat heeft gestaan:
-      `vercel env add ADMIN_PASSWORD production --value ... --force --yes` + opnieuw deployen
+- [ ] **Decide which list is the real one.** The till PC and the hosted version each
+      keep their own price list and do not talk to each other. While both are in use
+      they will drift apart.
+- [ ] Rotate the password now that it has been in chat:
+      `vercel env add ADMIN_PASSWORD production --value ... --force --yes` + redeploy
 
-## Phase 9 — Taal
+## Phase 9 — Language
 
-- [x] `app/js/i18n.js` — woordenboek EN/NL, `t()`, meervoud, namen en categorieën
-- [x] **Engels als standaard**, EN/NL-knop rechtsboven, keuze onthouden per apparaat
-- [x] Statische teksten via `data-i18n` in `index.html`, niet nagebouwd in JS
-- [x] `money.js` geeft meldingssleutels in plaats van zinnen — blijft vrij van taal en DOM
-- [x] Bedragen blijven `9,94` met komma in beide talen (dat wordt in Hanka getypt)
-- [x] **Geverifieerd op productie:** tabs, tegels, categorieën, weekprijzen, inlogscherm
-      en prijslijst schakelen allemaal mee; 43 rekencontroles groen
+- [x] `app/js/i18n.js` — EN/NL dictionary, `t()`, plurals, names and categories
+- [x] **English as the default**, EN/NL toggle top-right, choice remembered per device
+- [x] Static text via `data-i18n` in `index.html`, not rebuilt in JS just to translate it
+- [x] `money.js` returns message keys instead of sentences — stays free of language and DOM
+- [x] Amounts stay `9,94` with a comma in both languages (that is what gets typed into Hanka)
+- [x] **Verified on production:** tabs, tiles, categories, weekly prices, login screen
+      and price list all switch; 43 money checks green
 
-- [ ] Nog even nakijken door iemand die vloeiend Nederlands spreekt — de Nederlandse
-      teksten komen uit de oorspronkelijke versie, de Engelse zijn nieuw
+- [ ] Have a fluent Dutch speaker read the NL strings — the Dutch came from the
+      original build, the English is newer, and nobody has read the pair side by side
 
 ## Phase 10 — iPhone
 
-Het telefoonscherm is een eigen indeling, geen ingedrukte kassa-indeling.
+The phone screen is its own layout, not the till layout squeezed down.
 
-- [x] Categorieën als chips die je zijwaarts veegt
-- [x] Groenten twee naast elkaar, vierkante foto's
-- [x] **Bedrag vastgezet onderaan het scherm**, boven de home-indicator; mandjeregels
-      groeien erboven tot ~30 vh en scrollen daarna
-- [x] Weegtoetsenbord onder de foto in plaats van ernaast
-- [x] Kop over twee regels: merk + taalknop, daaronder de drie tabs
-- [x] Productlijst verbergt categorie, eenheid en status — naam, prijs en de twee
-      knoppen blijven
-- [x] A4-prijslijst wordt één kolom en past op de schermbreedte
-- [x] `viewport-fit=cover` + `env(safe-area-inset-*)` voor notch en home-indicator
-- [x] `100dvh` in plaats van `100%` — anders valt de onderkant onder de Safari-balk
-- [x] Alle raakvlakken ≥ 44×44 pt (taalknop was 34, `.btn-sm` 40, pictogramknoppen 38)
-- [x] Geen invoerveld onder 16 px, anders zoomt iOS in bij het aantikken
-- [x] `-webkit-text-size-adjust` tegen opgeblazen tekst in liggende stand
-- [x] Aparte regel voor liggende stand op een telefoon (weinig hoogte)
-- [x] **Gemeten op 390 × 844:** nergens zijwaarts scrollen, niets breder dan het
-      scherm, geen enkel raakvlak onder 44 pt op verkoop, beheer, productlijst,
-      prijslijst en schermweergave; hele verkoopflow werkt (2,615 kg × € 3,80 = € 9,94)
-- [x] Uitgeleverde bestanden gecontroleerd op de live site
+- [x] Categories as chips you swipe sideways
+- [x] Vegetables two-up, square photos
+- [x] **Amount pinned to the bottom of the screen**, above the home indicator; basket
+      lines grow above it to ~30 vh and then scroll
+- [x] Weigh keypad under the photo instead of beside it
+- [x] Header over two rows: brand + language toggle, then the three tabs
+- [x] Product table hides category, unit and status — name, price and the two buttons stay
+- [x] A4 price list becomes one column and fits the screen width
+- [x] `viewport-fit=cover` + `env(safe-area-inset-*)` for the notch and home indicator
+- [x] `100dvh` instead of `100%` — otherwise the bottom sits under the Safari toolbar
+- [x] Every tap target >= 44x44 pt (language toggle was 34, `.btn-sm` 40, icon buttons 38)
+- [x] No input under 16 px, otherwise iOS zooms in on tap
+- [x] `-webkit-text-size-adjust` against inflated text in landscape
+- [x] Separate rule for phone landscape (very little height)
+- [x] **Measured at 390 x 844:** no sideways scrolling anywhere, nothing wider than the
+      screen, no tap target under 44 pt on sell, admin, product list, price list or
+      screen view; the whole sell flow works (2,615 kg x EUR 3,80 = EUR 9,94)
+- [x] Deployed files checked on the live site
 
-- [ ] **Op zijn echte iPhone bekijken.** Getest in een 390 × 844 viewport in Chrome,
-      niet op iOS Safari zelf. Safari verschilt op scrollmomentum, de dynamische
-      werkbalk en lettergrootte.
-- [ ] Hem laten kiezen: **Deel → Zet op beginscherm** geeft een schermvullende
-      weergave zonder Safari-balken
+- [ ] **Look at it on his actual iPhone.** Tested in a 390 x 844 viewport in Chrome,
+      not on iOS Safari itself. Safari differs on scroll momentum, the dynamic toolbar
+      and font rendering.
+- [ ] Show him **Share -> Add to Home Screen** for a full-screen view with no Safari bars
 
+## Phase 11 — Language of the project itself
+
+The shop is Dutch, so the interface was written in Dutch first. That leaked outward
+into things that are not the shop's: commit messages, README, the newer sections of
+this file, console output and API error strings. Nobody asked for that.
+
+- [x] Dutch now lives in exactly one place: the `nl` block of `app/js/i18n.js`
+- [x] `README.md` rewritten in English
+- [x] These phase notes rewritten in English
+- [x] API error strings in English — they surface in the UI, which defaults to English
+- [x] `serve.ps1` and `tools/fetch-photos.ps1` console output in English
+- [x] `app/test.html` labels in English, `lang="en"`
+- [x] `package.json` description in English
+- [ ] Earlier commit messages stay Dutch — rewriting pushed history is not worth it.
+      Everything from here is English.
 ## Open questions for the shop
 
 - [ ] Does the DIGI scale have an RS-232 or USB socket on the back? A photo of the model label would

@@ -87,7 +87,7 @@ export async function logSale(lines, totalCents) {
       body: JSON.stringify(entry)
     });
   } catch (err) {
-    console.warn('verkoop niet gelogd:', err);
+    console.warn('sale not logged:', err);
   }
 }
 

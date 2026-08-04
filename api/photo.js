@@ -9,17 +9,17 @@ export const config = { api: { bodyParser: false } };
 
 export default async function handler(req, res) {
   if (req.method !== 'POST' && req.method !== 'PUT') {
-    return res.status(405).json({ error: 'Methode niet toegestaan' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
   if (!requireAdmin(req, res)) return;
 
   const id = String(req.query.id || '');
   if (!/^[a-z0-9-]{1,60}$/.test(id)) {
-    return res.status(400).json({ error: 'Ongeldige id.' });
+    return res.status(400).json({ error: 'Invalid id.' });
   }
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return res.status(501).json({
-      error: 'Foto uploaden staat uit: geen Blob-opslag gekoppeld.'
+      error: 'Photo upload is off: no Blob storage attached.'
     });
   }
 
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
       // The browser downscales to 400x400 before sending, so anything this
       // large is not a photo from our own admin screen.
       if (total > 2_000_000) {
-        return res.status(413).json({ error: 'Foto te groot.' });
+        return res.status(413).json({ error: 'Photo too large.' });
       }
       chunks.push(chunk);
     }

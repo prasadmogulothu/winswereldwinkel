@@ -1,157 +1,160 @@
 # Groenten — Wereld Supermarkt
 
-Een groentemodule die naast Hanka op de kassa-pc draait. Geen internet, geen server
-buiten de winkel, niets te installeren.
+A vegetable module that runs next to Hanka on the till PC. No internet, no server
+outside the shop, nothing to install.
 
-Er draait ook een online versie op **https://wins-wereld-winkel.vercel.app** —
-zie [Online versie](#online-versie) onderaan.
+There is also a hosted version at **https://wins-wereld-winkel.vercel.app** — see
+[Hosted version](#hosted-version) at the bottom.
 
-De interface staat standaard in het **Engels**, met een **EN / NL**-knop rechtsboven.
-De keuze wordt per apparaat onthouden. Bedragen blijven in beide talen `9,94` met een
-komma, want dat is precies wat er in Hanka getypt wordt.
+The interface is in **English by default**, with an **EN / NL** toggle top-right.
+The choice is remembered per device. Amounts stay `9,94` with a comma in both
+languages, because that is exactly what gets typed into Hanka.
 
-**Inrichten bij je vriend in de winkel? Lees [`integration.md`](integration.md)** —
-daar staat wat er van hem nodig is en wat juist niet. **Part 0** is de lijst met
-wat er nog openstaat, met wie het moet doen en waarom het blokkeert.
+**Setting this up in the shop? Read [`integration.md`](integration.md)** — it lists
+what is needed from the owner and what is not. **Part 0** is the list of everything
+still outstanding, who has to do it, and why it blocks.
 
-> **Let op: twee gescheiden prijslijsten.**
-> De kassa-pc bewaart prijzen in `data\products.json` op die pc. De online versie
-> bewaart ze in Vercel Blob. Ze praten **niet** met elkaar. Een prijs die je online
-> wijzigt komt niet op de kassa, en andersom ook niet. Kies er één als de echte,
-> anders gaan ze uit elkaar lopen.
+> **Careful: two separate price lists.**
+> The till PC keeps prices in `data\products.json` on that machine. The hosted
+> version keeps them in Vercel Blob. They do **not** talk to each other. A price
+> changed online does not reach the till, and vice versa. Pick one as the real
+> one, or they will drift apart.
 
-## Starten
+## Starting it
 
-Dubbelklik **`start.bat`**. Er opent een venster zonder adresbalk. Alt+Tab om tussen
-Groenten en Hanka te wisselen.
+Double-click **`start.bat`**. A window opens with no address bar. Alt+Tab between
+it and Hanka.
 
-Er start ook een klein zwart venster met de titel *Groenten server*. Dat moet openblijven —
-sluit je dat, dan werkt de module niet meer. Aan het eind van de dag mag alles dicht.
+A small black window titled *Groenten server* also starts. **Leave it open** — close
+it and the module stops working. Everything can be closed at the end of the day.
 
-Maak eventueel een snelkoppeling naar `start.bat` op het bureaublad.
+Make a desktop shortcut to `start.bat` if that helps.
 
-## Hoe het aan de kassa werkt
+## How it works at the counter
 
 ```
-  weeg op de DIGI  →  typ de kg in Groenten  →  lees het bedrag  →  typ dat in Hanka
+  weigh on the DIGI  →  type the kg  →  read the amount  →  type it into Hanka
 ```
 
-1. Tik op de foto van de groente.
-2. Typ het gewicht dat op de DIGI staat. Komma of punt, allebei goed.
-3. Onderin links staat het bedrag, groot en oranje.
-4. Meerdere groenten? Tik **Toevoegen** en kies de volgende. Onderin staat het totaal.
-5. Typ dat ene bedrag in Hanka op de toets **groenten** en reken af.
+1. Tap the photo of the vegetable.
+2. Type the weight shown on the DIGI. Comma or full stop, both work.
+3. The amount appears bottom-left, large and orange.
+4. More than one vegetable? Tap **Add** and pick the next. The total is at the bottom.
+5. Type that one amount into Hanka on the **groenten** key and take payment.
 
-**De module raakt het geld niet aan.** Hanka blijft de kassa: alle omzet, btw en de
-Z-afsluiting lopen precies zoals nu. Wat de module bijhoudt in `data\sales.jsonl` is
-alleen ter informatie, niet je kassa-omzet.
+**The module never touches the money.** Hanka stays the till: all turnover, VAT and
+the Z-report run exactly as they do now. What the module records in
+`data\sales.jsonl` is informational, not the till takings.
 
-## Prijzen aanpassen
+## Changing prices
 
-**Beheer → Weekprijzen.** Alle groenten in één scherm, één kolom met prijzen.
-Tab of Enter springt naar de volgende. Gewijzigde velden krijgen een oranje rand.
-Onderin staat hoeveel er gewijzigd zijn; klik **Opslaan**. Veertig prijzen in een minuut.
+**Admin → Weekly prices.** Every vegetable on one screen, one column of prices.
+Tab or Enter jumps to the next. Changed fields get an orange outline. The bottom bar
+shows how many changed; click **Save**. Forty prices in a minute.
 
-Prijzen zijn **consumentenprijzen inclusief btw** — precies het getal dat je in Hanka typt.
-De module rekent zelf geen btw uit; dat doet Hanka al op de afdeling groenten.
+Prices are **consumer prices including VAT** — exactly the number typed into Hanka.
+The module calculates no VAT; Hanka already does that on the groenten department.
 
-## Groente toevoegen of wijzigen
+## Adding or editing a vegetable
 
-**Beheer → Alle groenten → Nieuwe groente.**
+**Admin → All vegetables → New vegetable.**
 
-- **Eenheid** bepaalt alles: `per kg` laat je wegen, `per stuk` en `per bos` laten je tellen.
-- **Foto**: een telefoonfoto is prima. Wordt automatisch vierkant bijgesneden naar 400×400.
-- **Actief** uit = de groente verdwijnt van het verkoopscherm en van de prijslijst,
-  maar blijft bewaard. Handig voor seizoensgroenten.
-- **Volgorde**: lager staat vooraan.
+- **Unit** decides everything: `per kg` weighs, `per piece` and `per bunch` count.
+- **Photo**: a phone photo is fine. Cropped square to 400×400 automatically.
+- **Active** off = the vegetable disappears from the sell screen and the price list
+  but is kept. Useful for seasonal produce.
+- **Order**: lower comes first.
 
-## Prijslijst voor het schap
+## Price list for the shelf
 
-**Prijslijst → Print A4.** Twee kolommen, Nederlands en Engels, met de datum erop.
-**Schermweergave** is dezelfde lijst groot op een scherm, voor als er later een tablet
-bij het schap komt te hangen.
+**Price list → Print A4.** Two columns, Dutch and English, dated.
+**Screen view** is the same list large on a screen, for if a tablet ever goes up
+next to the shelf.
 
-## Back-up
+## Backup
 
-De hele prijslijst staat in één bestand: **`data\products.json`**.
+The entire price list is one file: **`data\products.json`**.
 
-- Back-up = kopieer de map `wereld-supermarkt` naar een USB-stick.
-- Terugzetten = kopieer hem terug.
+- Backup = copy the `wereld-supermarkt` folder to a USB stick.
+- Restore = copy it back.
 
-Doe dat na elke grote prijswijziging. Het bestand is gewone tekst; je kunt het in
-Kladblok openen om te zien dat je wijziging er echt in staat.
+Do it after every significant price change. The file is plain text; open it in
+Notepad to confirm a change really landed.
 
-## Als er iets niet werkt
+## When something breaks
 
-| Wat je ziet | Wat je doet |
+| What you see | What to do |
 |---|---|
-| "De prijslijst kon niet geladen worden" | Het servervenster is dicht. Sluit alles en start `start.bat` opnieuw. |
-| "Opslaan mislukt … Draait de server nog?" | Zelfde. Je wijziging is nog niet weg — probeer opnieuw na het herstarten. |
-| "Kon poort 8777 niet openen" | Er draait al een Groenten-server. Sluit het oude zwarte venster. |
-| Een foto ontbreekt (gekleurd vlak met een letter) | Normaal. Maak zelf een foto via Beheer → bewerken → Foto kiezen. |
-| De prijs klopt niet met de weegschaal | Controleer de prijs per kg in Weekprijzen. De DIGI heeft zijn eigen prijs ingesteld staan; die twee moeten gelijk zijn. |
+| "The price list could not be loaded" | The server window is closed. Close everything and run `start.bat` again. |
+| "Save failed…" | Same. Your change is not lost — retry after restarting. |
+| "Could not open port 8777" | A Groenten server is already running. Close the old black window. |
+| A photo is missing (coloured tile with a letter) | Normal. Take your own via Admin → edit → Choose photo. |
+| The price does not match the scale | Check the price per kg under Weekly prices. The DIGI has its own price set; the two must agree. |
 
-## Voor wie eraan sleutelt
+## For whoever works on it
 
-- **`app/test.html`** — reken- en gewichtscontroles. Open dit na elke wijziging aan
-  `app/js/money.js`. Alles moet groen zijn voordat het aan de kassa gebruikt wordt.
-- **`app/js/money.js`** — alle bedragen zijn hele centen, nooit kommagetallen. De drie
-  constanten bovenaan (`SCALE_STEP_KG`, `SCALE_MIN_KG`, `SCALE_MAX_KG`) komen van het
-  typeplaatje van de DIGI: 5 g stappen, min 100 g, max 15 kg. Andere weegschaal?
-  Alleen die drie getallen aanpassen.
-- **`serve.ps1`** — statische server op `System.Net.HttpListener`, zit in Windows zelf.
-  Schrijft `products.json` via een tijdelijk bestand, zodat een crash halverwege nooit
-  een halve prijslijst achterlaat. Ongeldige JSON wordt geweigerd zonder het bestand aan
-  te raken.
-- **`tools/fetch-photos.ps1`** — haalt productfoto's van Wikimedia Commons. Heeft internet
-  nodig, maar alleen op de pc waar je het draait — de kassa nooit. Bronvermelding komt in
-  `app/photos/CREDITS.md`.
+- **`app/test.html`** — money and weight checks. Open it after every change to
+  `app/js/money.js`. Everything must be green before it is used at the counter.
+- **`app/js/money.js`** — all amounts are whole cents, never floats. The three
+  constants at the top (`SCALE_STEP_KG`, `SCALE_MIN_KG`, `SCALE_MAX_KG`) come off
+  the DIGI's type plate: 5 g steps, min 100 g, max 15 kg. Different scale? Edit
+  those three numbers and nothing else.
+- **`app/js/i18n.js`** — the only place Dutch belongs. Everything outside this file
+  — docs, comments, commit messages, console output — is English.
+- **`serve.ps1`** — static server on `System.Net.HttpListener`, part of Windows
+  itself. Writes `products.json` via a temp file so a crash halfway can never leave
+  half a price list. Invalid JSON is rejected without touching the file.
+- **`tools/fetch-photos.ps1`** — pulls product photos from Wikimedia Commons. Needs
+  internet, but only on the machine running it — never the till. Attribution goes
+  into `app/photos/CREDITS.md`.
 
-## Online versie
+## Hosted version
 
 **https://wins-wereld-winkel.vercel.app**
 
-- **Verkoop** en **Prijslijst** zijn open — geen inloggen nodig, iedereen mag kijken.
-- **Beheer** vraagt om inloggen: gebruikersnaam `admin`.
+- **Sell** and **Price list** are open — no login, anyone may look.
+- **Admin** requires a login: username `admin`.
 
-Het wachtwoord staat **niet** in deze repo. Het staat als `ADMIN_PASSWORD` in de
-Vercel-projectinstellingen. Wijzigen:
+The password is **not** in this repo. It lives as `ADMIN_PASSWORD` in the Vercel
+project settings. To change it:
 
 ```
-vercel env rm  ADMIN_PASSWORD production --yes
-vercel env add ADMIN_PASSWORD production --value NIEUWWACHTWOORD --yes
+vercel env add ADMIN_PASSWORD production --value NEWPASSWORD --force --yes
 vercel deploy --prod --yes
 ```
 
-Een nieuwe waarde geldt pas na een nieuwe deploy. Wil je iedereen uitloggen, doe dan
-hetzelfde met `SESSION_SECRET`.
+A new value only takes effect after a new deployment. To log everyone out, do the
+same with `SESSION_SECRET`.
 
-### Wat waar staat
+### What lives where
 
-| Onderdeel | Kassa-pc | Online |
+| Part | Till PC | Hosted |
 |---|---|---|
-| Server | `serve.ps1` (Windows HttpListener) | Serverless functies in `api/` |
-| Prijslijst | `data\products.json` | Vercel Blob, map `prijslijst/` |
-| Inloggen | niet nodig, staat achter de toonbank | wachtwoord op alle schrijfroutes |
-| Foto's | `app\photos\` | dezelfde 44 statisch; nieuwe uploads naar Blob |
-| Back-up | map kopiëren naar USB | laatste 5 versies blijven in Blob staan |
+| Server | `serve.ps1` (Windows HttpListener) | Serverless functions in `api/` |
+| Price list | `data\products.json` | Vercel Blob, prefix `prijslijst/` |
+| Login | Not needed, it stands behind the counter | Password on every write route |
+| Photos | `app\photos\` | Same 44 served statically; new uploads go to Blob |
+| Backup | Copy the folder to USB | Last 5 versions kept in Blob |
 
-Elke opslag schrijft een **nieuw** bestand in Blob in plaats van er één te overschrijven.
-Publieke blob-URLs staan namelijk achter een CDN dat minstens een minuut cachet — met
-één vaste naam gaf een net gewijzigde prijs nog even de oude waarde terug.
+Every save writes a **new** file in Blob instead of overwriting one. Public blob
+URLs sit behind a CDN with a 60-second floor, so with one fixed name a
+just-changed price kept reading back as the old one.
 
-### Opnieuw uitrollen
+### Redeploying
 
 ```
-git push            # Vercel bouwt automatisch vanaf GitHub
-vercel deploy --prod --yes   # of handmatig
+git push                     # Vercel builds automatically from GitHub
+vercel deploy --prod --yes   # or manually
 ```
 
-## Nog open
+## Still open
 
-- Heeft de DIGI een seriële of USB-aansluiting achterop? Dan kan Chrome het gewicht
-  rechtstreeks uitlezen en hoeft niemand meer te typen.
-- Welk etiketformaat gebruikt de stickerprinter? Dat bepaalt het `@page`-blok onderin
-  `app/css/app.css`.
-- Accepteert de toets **groenten** in Hanka een vrij bedrag? Zo niet, dan moet de dealer
-  die toets op open prijs zetten.
+See **Part 0** of [`integration.md`](integration.md) for the full list with owners.
+The three that matter most:
+
+- Does Hanka's **groenten** key accept a freely typed amount? If not, the dealer has
+  to set that key to open price. **The whole design rests on this and it is untested.**
+- Does the DIGI have a serial or USB socket on the back? Then Chrome can read the
+  weight directly and nobody types a number again.
+- What label size does the sticker printer use? That sets the `@page sticker` block
+  in `app/css/app.css`.
