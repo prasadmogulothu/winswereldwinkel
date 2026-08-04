@@ -1,5 +1,9 @@
 # Groenten module — tasks
 
+> **Alles wat nog openstaat staat bij elkaar in [`integration.md`](integration.md),
+> Part 0** — met wie het moet doen en waarom het blokkeert. Dit bestand is de
+> bouwgeschiedenis per fase.
+
 Offline vegetable admin + sell screen for Wereld Supermarkt, running on the till PC next to Hanka.
 
 **Money path:** the module never takes money. Staff weigh on the DIGI, type the kg here, and the

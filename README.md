@@ -11,7 +11,8 @@ De keuze wordt per apparaat onthouden. Bedragen blijven in beide talen `9,94` me
 komma, want dat is precies wat er in Hanka getypt wordt.
 
 **Inrichten bij je vriend in de winkel? Lees [`integration.md`](integration.md)** —
-daar staat wat er van hem nodig is en wat juist niet.
+daar staat wat er van hem nodig is en wat juist niet. **Part 0** is de lijst met
+wat er nog openstaat, met wie het moet doen en waarom het blokkeert.
 
 > **Let op: twee gescheiden prijslijsten.**
 > De kassa-pc bewaart prijzen in `data\products.json` op die pc. De online versie

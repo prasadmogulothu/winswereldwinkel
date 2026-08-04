@@ -19,6 +19,47 @@ Two places it can run, and they are independent:
 
 ---
 
+# Part 0 — Open actions
+
+Everything still outstanding, in one place. "You" is whoever runs the project;
+"Owner" is the shop owner. Details are in the part named on each line.
+
+## 0.1 Blocking — do these before a single real customer is charged
+
+| ✓ | Who | Action | Why it blocks | Where |
+|---|---|---|---|---|
+| ☐ | Owner | **Confirm Hanka's `groenten` key accepts a typed euro amount** (open price). Type `1.00`, press `groenten`, check the receipt reads € 1,00 | **The entire design rests on this one fact and it has never been tested.** If that key only takes a quantity, the module cannot hand its amount to the till and the approach has to change | §1.1 #2 |
+| ☐ | Owner | **Enter the real prices** in Admin → Weekly prices | All 44 shipped prices are placeholders. Selling at a placeholder price loses real money on every transaction | §1.1 #1 |
+| ☐ | Both | **Decide which price list is the master** — till PC or online | They do not sync. Two lists in use will silently drift apart, and nobody will notice until a customer is charged the wrong amount | Top of this file |
+| ☐ | You | **Rotate `ADMIN_PASSWORD`** and redeploy | `RaguWinkel` has been shared in chat, so treat it as public. Anyone who has it can change every price in the shop | §3.2 |
+
+## 0.2 Before sending the link to his iPhone
+
+| ✓ | Who | Action | Why | Where |
+|---|---|---|---|---|
+| ☐ | You | **Open the URL on his actual iPhone in Safari** and tap through sell → admin → price list | The phone layout was measured in a 390 × 844 Chrome viewport, **not on iOS Safari itself**. Safari differs on scroll momentum, the dynamic toolbar and font rendering | Part 4 |
+| ☐ | Owner | **Share → Add to Home Screen** | Opens full-screen with no Safari chrome and behaves like an app | Part 4 |
+
+## 0.3 On the till PC, at first install
+
+| ✓ | Who | Action | Why | Where |
+|---|---|---|---|---|
+| ☐ | You | **Open `app/test.html` once.** All 43 checks must be green | It is the only thing standing between a rounding bug and a wrong price | Part 2 |
+| ☐ | You | **Weigh a real bag on the DIGI** and check the module's euro figure matches the scale's own € display | If they differ, the price per kg is set differently in the two places | Part 2 |
+| ☐ | Owner | **Copy the folder to a USB stick** after the first real price entry | `data\products.json` is the entire price list and the only copy | §1.2 #5 |
+
+## 0.4 Quality — makes it better, does not block
+
+| ✓ | Who | Action | Why | Where |
+|---|---|---|---|---|
+| ☐ | Owner | **Switch off vegetables he does not stock** (Active toggle) | Anything on screen that is not in the shop is a mis-tap waiting to happen | §1.1 #3 |
+| ☐ | Owner | **Reshoot about ten photos** with a phone | Ten stock photos are recognisable but not obviously the product on his shelf — African eggplant shows the plant in flower, white cabbage a seedling. Named individually in `tasks.md` | §1.4 #12 |
+| ☐ | Owner | **Photograph the back of the DIGI scale** and its model label | If it has an RS-232 or USB socket, Chrome can read the weight live and nobody types a number again | §1.4 #11 |
+| ☐ | Owner | **Measure the label stock** in mm | Sets the `@page sticker` block. It will not be right the first time | §1.2 #6 |
+| ☐ | You | **Have a fluent Dutch speaker read the NL strings** | The Dutch came from the original build; the English is newer. Nobody has proofread the pair side by side | Part 5 |
+
+---
+
 # Part 1 — What we need from the shop owner
 
 Nothing here is a password to a bank, a card, or a payment system, and the module
