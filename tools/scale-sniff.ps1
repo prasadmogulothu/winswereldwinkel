@@ -18,14 +18,19 @@ param(
 
 $ErrorActionPreference = 'Continue'
 
-# The settings DIGI bench scales are normally shipped on, likeliest first.
+# Likeliest first. 9600 8E1 is what SBZ Systems document for talking to a
+# DS-781/782, so it leads. The DS-782 service manual lists 1200 through 38400,
+# parity even/odd/none, 1 or 2 stop bits, hence the spread below.
 $combos = @(
-  @{ baud = 9600; bits = 7; parity = 'Even'; }
-  @{ baud = 2400; bits = 7; parity = 'Even'; }
-  @{ baud = 9600; bits = 8; parity = 'None'; }
-  @{ baud = 4800; bits = 7; parity = 'Even'; }
-  @{ baud = 1200; bits = 7; parity = 'Even'; }
-  @{ baud = 2400; bits = 8; parity = 'None'; }
+  @{ baud = 9600;  bits = 8; parity = 'Even'; }   # documented for DS-781/782
+  @{ baud = 9600;  bits = 7; parity = 'Even'; }
+  @{ baud = 9600;  bits = 8; parity = 'None'; }
+  @{ baud = 2400;  bits = 7; parity = 'Even'; }
+  @{ baud = 2400;  bits = 8; parity = 'Even'; }
+  @{ baud = 4800;  bits = 8; parity = 'Even'; }
+  @{ baud = 19200; bits = 8; parity = 'Even'; }
+  @{ baud = 1200;  bits = 7; parity = 'Even'; }
+  @{ baud = 38400; bits = 8; parity = 'None'; }
 )
 
 function Show-Bytes([byte[]]$bytes) {
@@ -117,7 +122,17 @@ if (-not $ports -or $ports.Count -eq 0) {
 }
 
 Write-Host "  Ports Windows can see: $($ports -join ', ')" -ForegroundColor Green
-foreach ($p in $ports) { if (Try-Port $p) { break } }
+$found = $false
+foreach ($p in $ports) { if (Try-Port $p) { $found = $true; break } }
+
+if (-not $found) {
+  Write-Host ""
+  Write-Host "  Every setting was silent." -ForegroundColor Yellow
+  Write-Host "  That does not mean the port is dead. A DS-782 only transmits once"
+  Write-Host "  its spec-codes are set for serial output - out of the box it says"
+  Write-Host "  nothing. Ask the scale dealer to put it in stream mode, or check"
+  Write-Host "  Spec06/07/10/11 in the scale's own setup menu."
+}
 
 Write-Host ""
 Write-Host "  Done. Copy everything above and send it over." -ForegroundColor Cyan
